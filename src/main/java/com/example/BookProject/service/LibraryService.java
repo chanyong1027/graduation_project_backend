@@ -7,6 +7,8 @@ import com.example.BookProject.dto.LibraryDto;
 import com.example.BookProject.repository.LibraryRepository;
 import com.example.BookProject.repository.UserLibraryRepository;
 import com.example.BookProject.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,8 +26,8 @@ public class LibraryService {
     private final UserLibraryRepository userLibraryRepository;
     private final UserRepository userRepository; // User 조회용
 
-    // TODO: application.yml 로 분리하여 관리하는 것을 권장합니다.
-    private final String API_KEY = "ad79e8a862abd18051e4d11cc8cd80446c48d9273cd1f9b332292508d9422682";
+    @Value("${external.api.data4library}")
+    private String API_KEY;
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -113,7 +115,7 @@ public class LibraryService {
     public List<LibraryDto.Response> getMyLabraries(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId: " + userId));
-        return UserLibraryRepository.findByUser(user).stream()
+        return userLibraryRepository.findByUser(user).stream()
                 .map(userLibrary -> new LibraryDto.Response(userLibrary.getLibrary()))
                 .collect(Collectors.toList());
     }
@@ -129,4 +131,5 @@ public class LibraryService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 도서관이 내 목록에 없습니다."));
 
         userLibraryRepository.delete(userLibrary);
+    }
 }

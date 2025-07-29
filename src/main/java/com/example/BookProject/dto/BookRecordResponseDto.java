@@ -20,7 +20,7 @@ public class BookRecordResponseDto {
         this.readStatus = record.getReadStatus();
         this.startDate = record.getStartDate();
         this.endDate = record.getEndDate();
-        this.bookId = record.getBook().getBookId();
+        this.bookId = record.getBook().getId();
         this.bookTitle = record.getBook().getTitle(); // Book 엔티티에 getTitle()이 있다고 가정
     }
 }

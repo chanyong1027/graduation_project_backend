@@ -1,7 +1,7 @@
 package com.example.BookProject.service;
 
 import com.example.BookProject.domain.User;
-import com.example.BookProject.domain.UserDto;
+import com.example.BookProject.dto.UserDto;
 import com.example.BookProject.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

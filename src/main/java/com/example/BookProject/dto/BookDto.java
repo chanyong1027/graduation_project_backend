@@ -1,5 +1,6 @@
-package com.example.BookProject.domain;
+package com.example.BookProject.dto;
 
+import com.example.BookProject.domain.Book;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +18,7 @@ public class BookDto {
         private String description;
 
         public BookResponse(Book book) {
-            this.bookId = book.getBookId();
+            this.bookId = book.getId();
             this.title = book.getTitle();
             this.author = book.getAuthor();
             this.publisher = book.getPublisher();

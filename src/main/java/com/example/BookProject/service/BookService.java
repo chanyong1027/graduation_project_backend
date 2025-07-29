@@ -1,12 +1,13 @@
 package com.example.BookProject.service;
 
-import com.example.BookProject.domain.AladinDto;
+import com.example.BookProject.dto.AladinDto;
 import com.example.BookProject.domain.Book;
-import com.example.BookProject.domain.BookDto;
+import com.example.BookProject.dto.BookDto;
 import com.example.BookProject.repository.BookRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -31,7 +32,9 @@ public class BookService {
     private final Map<String, LocalDateTime> searchCache = new ConcurrentHashMap<>();
 
     private static final String ALADIN_API_URL = "http://www.aladin.co.kr/ttb/api/ItemSearch.aspx";
-    private static final String TTB_KEY = "ttbghdcksdyd1230357001"; // 사용자 인증키
+     // 사용자 인증키
+     @Value("${external.api.aladin}")
+     private String TTB_KEY;
 
     @Transactional
     public void searchAndSaveBooks(String query){

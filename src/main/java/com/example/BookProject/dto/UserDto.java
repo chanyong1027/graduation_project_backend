@@ -1,5 +1,6 @@
-package com.example.BookProject.domain;
+package com.example.BookProject.dto;
 
+import com.example.BookProject.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +23,7 @@ public class UserDto {
         private LocalDateTime createdAt;
 
         public UserResponse(User user) {
-            this.userId = user.getUserId();
+            this.userId = user.getId();
             this.userNm = user.getUserNm();
             this.userImg = user.getUserImg();
             this.userEmail = user.getUserEmail();

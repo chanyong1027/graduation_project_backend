@@ -1,5 +1,6 @@
-package com.example.BookProject.domain;
+package com.example.BookProject.dto;
 
+import com.example.BookProject.domain.Review;
 import lombok.Getter;
 import java.time.LocalDateTime;
 
@@ -19,7 +20,7 @@ public class ReviewResponseDto {
         this.reviewImg = review.getReviewImg();
         this.rating = review.getRating();
         this.authorNickname = review.getUser().getUserNm(); // 예시: User 엔티티에 getNickname()이 있다고 가정
-        this.bookId = review.getBook().getBookId();
+        this.bookId = review.getBook().getId();
         this.createdAt = review.getCreatedAt();
     }
 }

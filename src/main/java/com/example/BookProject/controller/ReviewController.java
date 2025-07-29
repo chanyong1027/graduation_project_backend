@@ -1,7 +1,7 @@
 package com.example.BookProject.controller;
 
-import com.example.BookProject.domain.ReviewRequestDto;
-import com.example.BookProject.domain.ReviewResponseDto;
+import com.example.BookProject.dto.ReviewRequestDto;
+import com.example.BookProject.dto.ReviewResponseDto;
 import com.example.BookProject.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

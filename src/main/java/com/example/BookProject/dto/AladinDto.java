@@ -1,4 +1,4 @@
-package com.example.BookProject.domain;
+package com.example.BookProject.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

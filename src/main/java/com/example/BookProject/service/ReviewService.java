@@ -1,6 +1,8 @@
 package com.example.BookProject.service;
 
 import com.example.BookProject.domain.*;
+import com.example.BookProject.dto.ReviewRequestDto;
+import com.example.BookProject.dto.ReviewResponseDto;
 import com.example.BookProject.repository.BookRepository;
 import com.example.BookProject.repository.ReviewRepository;
 import com.example.BookProject.repository.UserRepository;

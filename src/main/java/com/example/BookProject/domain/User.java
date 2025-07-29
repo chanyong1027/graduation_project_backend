@@ -18,7 +18,7 @@ public class User {
     @Id // 기본 키(Primary Key)임을 선언
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 값을 DB가 자동으로 생성 (PostgreSQL의 bigserial과 잘 맞음)
     @Column(name = "user_id", updatable = false)
-    private Long userId;
+    private Long id;
 
     @Column(name = "user_pw", nullable = false)
     private String userPw;

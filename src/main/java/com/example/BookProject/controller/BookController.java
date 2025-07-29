@@ -1,9 +1,8 @@
 package com.example.BookProject.controller;
 
-import com.example.BookProject.domain.BookDto;
+import com.example.BookProject.dto.BookDto;
 import com.example.BookProject.service.BookService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

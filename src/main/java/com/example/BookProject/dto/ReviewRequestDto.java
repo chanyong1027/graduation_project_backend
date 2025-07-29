@@ -1,4 +1,4 @@
-package com.example.BookProject.domain;
+package com.example.BookProject.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
