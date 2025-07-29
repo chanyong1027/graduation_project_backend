@@ -41,13 +41,6 @@ public class UserDto {
         private String userNm;
         private String userEmail;
         private String userPw;
-
-        public User toEntity() {
-            // (보안) 나중에 Spring Security를 사용하면 여기서 비밀번호를 암호화해야 합니다.
-            // BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            // this.userPw = encoder.encode(this.userPw);
-            return new User(this.userEmail, this.userPw, this.userNm);
-        }
     }
 
     /**
@@ -58,6 +51,31 @@ public class UserDto {
     @NoArgsConstructor
     public static class UserUpdateRequest {
         private String userNm; // 이름만 수정 가능하다고 가정
+        private String userPw;
+    }
+
+    /**
+     * 로그인 요청을 위한 DTO
+     */
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class LoginRequest {
+        private String userEmail;
+        private String userPw;
+    }
+
+    /**
+     * 로그인 응답을 위한 DTO (JWT 토큰 포함)
+     */
+    @Getter
+    @NoArgsConstructor
+    public static class LoginResponse {
+        private String accessToken;
+
+        public LoginResponse(String accessToken) {
+            this.accessToken = accessToken;
+        }
     }
 
 }

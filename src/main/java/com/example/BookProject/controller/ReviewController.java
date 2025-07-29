@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,11 +18,19 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    // 현재 인증된 사용자 ID를 가져오는 헬퍼 메서드 (재사용)
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new IllegalStateException("인증된 사용자를 찾을 수 없습니다.");
+        }
+        com.example.BookProject.domain.User currentUser = (com.example.BookProject.domain.User) authentication.getPrincipal();
+        return currentUser.getId();
+    }
+
     @PostMapping
     public ResponseEntity<ReviewResponseDto> createReview(@Valid @RequestBody ReviewRequestDto requestDto) {
-        // 실제로는 Spring Security 등을 통해 인증된 사용자의 ID를 가져와야 합니다.
-        // 예시로 userId를 1L로 하드코딩합니다.
-        Long currentUserId = 1L;
+        Long currentUserId = getCurrentUserId();
 
         ReviewResponseDto responseDto = reviewService.createReview(requestDto, currentUserId);
 
