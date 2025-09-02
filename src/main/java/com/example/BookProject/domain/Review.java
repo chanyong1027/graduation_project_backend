@@ -54,4 +54,17 @@ public class Review {
         this.book = book;
         this.user = user;
     }
+
+    // ⭐수정 편의 메서드 추가⭐
+    public void updateReviewContent(String reviewContent) {
+        this.reviewContent = reviewContent;
+    }
+
+    public void updateReviewImg(String reviewImg) {
+        this.reviewImg = reviewImg;
+    }
+
+    public void updateRating(Float rating) {
+        this.rating = rating;
+    }
 }

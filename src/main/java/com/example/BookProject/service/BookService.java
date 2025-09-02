@@ -119,6 +119,67 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<BookDto.BookSearchResponse> searchBooks(String query){
+        URI uri = UriComponentsBuilder.fromUriString(ALADIN_API_URL)
+                .queryParam("ttbkey", TTB_KEY)
+                .queryParam("Query", query)
+                .queryParam("QueryType", "Keyword")
+                .queryParam("MaxResults", 10)
+                .queryParam("start", 1)
+                .queryParam("SearchTarget", "Book")
+                .queryParam("output", "js")
+                .queryParam("Version", "20131101")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        AladinDto.AladinResponse response = restTemplate.getForObject(uri, AladinDto.AladinResponse.class);
+
+        if(response != null && response.getItem() != null){
+            return response.getItem().stream()
+                    .map(BookDto.BookSearchResponse::new) // AladinDto.Item을 BookDto.BookSearchResponse로 변환
+                    .collect(Collectors.toList());
+        }
+
+        return List.of();
+    }
+
+    @Transactional
+    public void saveBookByIsbn(String isbn){
+        if(bookRepository.findByIsbn(isbn).isPresent()){
+            log.info("이미 DB에 존재하는 책입니다. ISBN: {}", isbn);
+            return;
+        }
+
+        URI uri = UriComponentsBuilder.fromUriString("http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx")
+                .queryParam("ttbkey", TTB_KEY)
+                .queryParam("itemId", isbn)
+                .queryParam("itemIdType", "ISBN13")
+                .queryParam("output", "js")
+                .queryParam("Version", "20131101")
+                .queryParam("Cover", "Big")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        AladinDto.AladinResponse response = restTemplate.getForObject(uri, AladinDto.AladinResponse.class);
+        if(response != null && response.getItem() != null && !response.getItem().isEmpty()){
+            AladinDto.Item item = response.getItem().get(0);
+            Book newBook = Book.builder()
+                    .title(item.getTitle())
+                    .author(item.getAuthor())
+                    .publisher(item.getPublisher())
+                    .isbn(item.getIsbn13())
+                    .bookImg(item.getCover())
+                    .publishedAt(item.getPubDate())
+                    .description(item.getDescription())
+                    .build();
+            bookRepository.save(newBook);
+            log.info("새로운 책이 DB에 저장되었습니다: {}", item.getTitle());
+        }
+    }
+
     @PostConstruct
     @Transactional
     public void updateBestsellers() {

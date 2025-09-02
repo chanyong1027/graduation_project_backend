@@ -48,9 +48,13 @@ public class BookRecordService {
 
     // 2. 조회 (Read)
     @Transactional(readOnly = true)
-    public BookRecordResponseDto findBookRecordById(Long recordId) {
+    public BookRecordResponseDto findBookRecordById(Long recordId, Long userId) {
         BookRecord record = bookRecordRepository.findById(recordId)
                 .orElseThrow(() -> new EntityNotFoundException("Book record not found"));
+
+        if (!record.getUser().getId().equals(userId)) {
+            throw new IllegalStateException("해당 독서 기록에 대한 조회 권한이 없습니다.");
+        }
         return new BookRecordResponseDto(record);
     }
 
@@ -62,9 +66,13 @@ public class BookRecordService {
     }
 
     // 3. 수정 (Update)
-    public BookRecordResponseDto updateBookRecordStatus(Long recordId, BookRecordUpdateRequestDto requestDto) {
+    public BookRecordResponseDto updateBookRecordStatus(Long recordId, BookRecordUpdateRequestDto requestDto, Long userId) {
         BookRecord record = bookRecordRepository.findById(recordId)
                 .orElseThrow(() -> new EntityNotFoundException("Book record not found"));
+
+        if (!record.getUser().getId().equals(userId)) {
+            throw new IllegalStateException("해당 독서 기록에 대한 수정 권한이 없습니다.");
+        }
 
         // 엔티티 내부의 비즈니스 메서드를 사용하여 상태 업데이트
         record.updateStatus(requestDto.getReadStatus());
@@ -74,10 +82,14 @@ public class BookRecordService {
     }
 
     // 4. 삭제 (Delete)
-    public void deleteBookRecord(Long recordId) {
-        if (!bookRecordRepository.existsById(recordId)) {
-            throw new EntityNotFoundException("Book record not found");
+    public void deleteBookRecord(Long recordId, Long userId) {
+        BookRecord record = bookRecordRepository.findById(recordId)
+                .orElseThrow(() -> new EntityNotFoundException("Book record not found"));
+
+        if (!record.getUser().getId().equals(userId)) {
+            throw new IllegalStateException("해당 독서 기록에 대한 삭제 권한이 없습니다.");
         }
+
         bookRecordRepository.deleteById(recordId);
     }
 }

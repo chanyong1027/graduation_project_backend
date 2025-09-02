@@ -29,4 +29,16 @@ public class BookController {
 
         return ResponseEntity.ok().body(bookResponses);
     }
+
+    @GetMapping
+    public ResponseEntity<List<BookDto.BookSearchResponse>> searchBooks(@RequestParam String query){
+        List<BookDto.BookSearchResponse> searchResults = bookService.searchBooks(query);
+        return ResponseEntity.ok().body(searchResults);
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> saveBook(@PathVariable String isbn){
+        bookService.saveBookByIsbn(isbn);
+        return ResponseEntity.ok().build();
+    }
 }

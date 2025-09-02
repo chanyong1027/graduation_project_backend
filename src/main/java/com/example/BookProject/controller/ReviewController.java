@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reviews")
@@ -28,14 +30,43 @@ public class ReviewController {
         return currentUser.getId();
     }
 
-    @PostMapping
+    @PostMapping("/reviews")
     public ResponseEntity<ReviewResponseDto> createReview(@Valid @RequestBody ReviewRequestDto requestDto) {
         Long currentUserId = getCurrentUserId();
-
         ReviewResponseDto responseDto = reviewService.createReview(requestDto, currentUserId);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    @GetMapping("/books/{isbn}/reviews")
+    public ResponseEntity<List<ReviewResponseDto>> getReviewsByBookIsbn(@PathVariable String isbn) {
+        List<ReviewResponseDto> reviews = reviewService.getReviewsByBookIsbn(isbn);
+        return ResponseEntity.ok(reviews);
+    }
+
     // 여기에 리뷰 목록 조회, 단건 조회, 수정, 삭제 API가 추가될 수 있습니다.
+    @GetMapping("/books/{bookId}/reviews")
+    public ResponseEntity<List<ReviewResponseDto>> getReivewsByBookId(@PathVariable Long bookId) {
+        List<ReviewResponseDto> reviews = reviewService.getReviewsByBookId(bookId);
+        return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/reviews/{reviewId}")
+    public ResponseEntity<ReviewResponseDto> getReviewById(@PathVariable Long reviewId) {
+        ReviewResponseDto review = reviewService.getReviewById(reviewId);
+        return ResponseEntity.ok(review);
+    }
+
+    @PutMapping("/reviews/{reviewId}")
+    public ResponseEntity<ReviewResponseDto> updateReview(@PathVariable Long reviewId, @Valid @RequestBody ReviewRequestDto requestDto) {
+        Long currentUserId = getCurrentUserId();
+        ReviewResponseDto responseDto = reviewService.updateReview(reviewId, requestDto, currentUserId);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId) {
+        Long currentUserId = getCurrentUserId();
+        reviewService.deleteReview(reviewId, currentUserId);
+        return ResponseEntity.noContent().build();
+    }
 }
