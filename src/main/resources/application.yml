@@ -1,0 +1,30 @@
+# src/main/resources/application.yml
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/BookProject
+    username: bookproject
+    password: ${DB_PASSWORD}  # 👈 환경 변수로 변경
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET} # 👈 환경 변수로 변경
+  token-validity-in-seconds: 3600
+
+logging:
+  level:
+    org.springframework.boot.autoconfigure: info
+
+external:
+  api:
+    aladin: ${ALADIN_API_KEY}      # 👈 환경 변수로 변경
+    data4library: ${DATA4LIBRARY_API_KEY} # 👈 환경 변수로 변경
