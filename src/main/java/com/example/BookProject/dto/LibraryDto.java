@@ -1,6 +1,7 @@
 package com.example.BookProject.dto;
 
 import com.example.BookProject.domain.Library;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,17 +13,19 @@ public class LibraryDto {
     @NoArgsConstructor
     public static class Response {
         private Long id;
-        private Long libCode;
+        private Long d4lLibCode;
+        private String nlssLibcode;
         private String libName;
         private String address;
         private String tel;
         private String homepage;
-        private String latitude;
-        private String longitude;
+        private Double latitude;
+        private Double longitude;
 
         public Response(Library library) {
             this.id = library.getId();
-            this.libCode = library.getLibCode();
+            this.d4lLibCode = library.getD4lLibCode();
+            this.nlssLibcode = library.getNlssLibCode();
             this.libName = library.getLibName();
             this.address = library.getAddress();
             this.tel = library.getTel();
@@ -55,20 +58,26 @@ public class LibraryDto {
      */
 
     @Getter
+    @NoArgsConstructor
     public static class Data4LibResponse {
         private ResponseData response;
 
         @Getter
+        @NoArgsConstructor
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class ResponseData {
             private List<Lib> libs;
         }
 
         @Getter
+        @NoArgsConstructor
         public static class Lib {
             private LibData lib;
         }
 
         @Getter
+        @NoArgsConstructor
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class LibData {
             private Long libCode;
             private String libName;
