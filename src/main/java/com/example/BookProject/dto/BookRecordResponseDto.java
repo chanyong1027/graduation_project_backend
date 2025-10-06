@@ -2,7 +2,9 @@ package com.example.BookProject.dto;
 
 import com.example.BookProject.domain.BookRecord;
 import com.example.BookProject.domain.ReadStatus;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 

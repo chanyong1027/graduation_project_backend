@@ -51,33 +51,31 @@ public class BookRecordController {
     }
 
     // 3. 특정 기록 단건 조회
-    @GetMapping("/{id}")
-    public ResponseEntity<BookRecordResponseDto> getRecordById(@PathVariable("id") Long recordId) {
+    @GetMapping("/{recordId}")
+    public ResponseEntity<BookRecordResponseDto> getRecordById(@PathVariable("recordId") Long recordId) {
         // 이 API는 recordId만으로 조회하므로, 특정 사용자 검증 로직이 추가될 수 있습니다.
         // 예를 들어, 해당 recordId가 현재 사용자의 것인지 확인하는 로직 등
-        BookRecordResponseDto record = bookRecordService.findBookRecordById(recordId);
+        Long currentUserId = getCurrentUserId();
+        BookRecordResponseDto record = bookRecordService.findBookRecordById(recordId, currentUserId);
         return ResponseEntity.ok(record);
     }
 
     // 4. 독서 상태 수정
-    @PatchMapping("/{id}")
+    @PatchMapping("/{recordId}")
     public ResponseEntity<BookRecordResponseDto> updateRecordStatus(
-            @PathVariable("id") Long recordId,
+            @PathVariable("recordId") Long recordId,
             @Valid @RequestBody BookRecordUpdateRequestDto requestDto) {
-        // 수정하려는 기록이 현재 사용자의 것인지 확인하는 로직 추가 필요 (보안 강화)
-        // Long currentUserId = getCurrentUserId();
-        // bookRecordService.checkOwnership(recordId, currentUserId); // 서비스에 소유권 확인 메서드 추가
-        BookRecordResponseDto updatedRecord = bookRecordService.updateBookRecordStatus(recordId, requestDto);
+        Long currentUserId = getCurrentUserId();
+        BookRecordResponseDto updatedRecord = bookRecordService.updateBookRecordStatus(recordId, requestDto, currentUserId);
         return ResponseEntity.ok(updatedRecord);
     }
 
     // 5. 서재에서 책 삭제
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRecord(@PathVariable("id") Long recordId) {
+    @DeleteMapping("/{recordId}")
+    public ResponseEntity<Void> deleteRecord(@PathVariable("recordId") Long recordId) {
         // 삭제하려는 기록이 현재 사용자의 것인지 확인하는 로직 추가 필요 (보안 강화)
-        // Long currentUserId = getCurrentUserId();
-        // bookRecordService.checkOwnership(recordId, currentUserId);
-        bookRecordService.deleteBookRecord(recordId);
+        Long currentUserId = getCurrentUserId();
+        bookRecordService.deleteBookRecord(recordId, currentUserId);
         return ResponseEntity.noContent().build(); // 204 No Content
     }
 }

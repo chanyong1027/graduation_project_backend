@@ -1,10 +1,10 @@
 package com.example.BookProject.domain;
 
+import com.example.BookProject.dto.LibraryDto;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,8 +17,11 @@ public class Library {
     @Column(name = "library_id")
     private Long id;
 
-    @Column(name = "lib_code", unique = true, nullable = false)
-    private Long libCode;
+    @Column(name = "nlss_lib_code", unique = true, nullable = false)
+    private String nlssLibCode;
+
+    @Column(name = "d4l_lib_code", unique = true)
+    private Long d4lLibCode;
 
     @Column(name = "lib_name", nullable = false)
     private String libName;
@@ -32,15 +35,16 @@ public class Library {
     @Column(name = "homepage")
     private String homepage;
 
-    @Column(name = "latitude")
-    private String latitude;
+    @Column(name = "latitude", nullable = false)
+    private Double latitude;
 
-    @Column(name = "longitude")
-    private String longitude;
+    @Column(name = "longitude", nullable = false)
+    private Double longitude;
 
     @Builder
-    public Library(Long libCode, String libName, String address, String tel, String homepage, String latitude, String longitude) {
-        this.libCode = libCode;
+    public Library(String nlssLibCode, Long d4lLibCode, String libName, String address, String tel, String homepage, Double latitude, Double longitude) {
+        this.nlssLibCode = nlssLibCode;
+        this.d4lLibCode = d4lLibCode;
         this.libName = libName;
         this.address = address;
         this.tel = tel;
@@ -48,4 +52,9 @@ public class Library {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    public void setD4lLibCode(Long d4lLibCode) {
+        this.d4lLibCode = d4lLibCode;
+    }
+
 }

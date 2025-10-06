@@ -22,8 +22,8 @@ public class UserService {
     @Transactional
     public UserDto.UserResponse createUser(UserDto.UserCreateRequest request) {
         // 이메일 중복 확인
-        if(userRepository.findByEmail(request.getUserEmail()).isPresent()) {
-            throw new IllegalArgumentException("User with email already exists");
+        if(userRepository.findByUserEmail(request.getUserEmail()).isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
         //비밀번호 암호화
@@ -45,7 +45,7 @@ public class UserService {
     // R: email로 특정 사용자 조회
     @Transactional(readOnly = true)
     public UserDto.UserResponse findUserByEmail(String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
+        User user = userRepository.findByUserEmail(userEmail)
                 .orElseThrow(()->new EntityNotFoundException("해당 ID의 사용자를 찾을 수 없습니다: " + userEmail));
         return new UserDto.UserResponse(user);
     }
