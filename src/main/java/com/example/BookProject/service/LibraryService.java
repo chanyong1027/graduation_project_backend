@@ -7,14 +7,13 @@ import com.example.BookProject.dto.LibraryDto;
 import com.example.BookProject.repository.LibraryRepository;
 import com.example.BookProject.repository.UserLibraryRepository;
 import com.example.BookProject.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,13 +28,9 @@ public class LibraryService {
     @Value("${external.api.data4library}")
     private String DATA4L_API_KEY;
     private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * [수정!] 외부 API들을 통해 도서관을 검색하고, 그 결과를 통합하여 반환
-     * 1. 정보나루 API를 통해 도서관을 검색하고 DB에 저장 (Upsert)
-     * 2. (추가) 다른 공공 API를 통해 도서관을 검색하고, 정보나루에 없던 도서관만 DB에 추가
-     * 3. 최종적으로 DB에서 해당 지역의 모든 도서관을 조회하여 반환
-     */
+
 //    @Transactional
 //    public List<LibraryDto.Response> searchLibraries(String region, String dtl_region) {
 //        String url = "http://data4library.kr/api/libSrch?authKey=" + API_KEY +
@@ -157,9 +152,13 @@ public class LibraryService {
                 + "&libCode=" + d4lLibCode + "&isbn13=" + isbn13 + "&format=json";
 
         try {
-            // ... (이하 로직은 기존과 동일)
-            LibraryDto.Data4LibBookExistResponse response = restTemplate.getForObject(url, LibraryDto.Data4LibBookExistResponse.class);
-            // ...
+            String jsonResponse = restTemplate.getForObject(url, String.class);
+            LibraryDto.Data4LibBookExistResponse response = objectMapper.readValue(jsonResponse, LibraryDto.Data4LibBookExistResponse.class);
+
+            if (response == null || response.getResponse() == null || response.getResponse().getResult() == null) {
+                return new LibraryDto.AvailabilityResponse(d4lLibCode, isbn13, false, false);
+            }
+
             boolean hasBook = "Y".equals(response.getResponse().getResult().getHasBook());
             boolean loanAvailable = "Y".equals(response.getResponse().getResult().getLoanAvailable());
             return new LibraryDto.AvailabilityResponse(d4lLibCode, isbn13, hasBook, loanAvailable);
@@ -172,10 +171,18 @@ public class LibraryService {
     /**
      * 내 도서관으로 추가 (즐겨찾기)
      */
+    // com/example/BookProject/service/LibraryService.java
+
+// ... (다른 코드)
+    /**
+     * 내 도서관으로 추가 (즐겨찾기)
+     */
     @Transactional
-    public void addFavoriteLibrary(Long userId, Long libraryId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId: " + userId));
+    public void addFavoriteLibrary(String userEmail, Long libraryId){ // <-- Long userId를 String userEmail로 변경
+        // 이메일로 사용자를 찾도록 로직 변경
+        User user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userEmail: " + userEmail));
+
         Library library = libraryRepository.findById(libraryId)
                 .orElseThrow(()-> new IllegalArgumentException("도서관을 찾을 수 없습니다. Lib id: " + libraryId));
 
@@ -192,9 +199,12 @@ public class LibraryService {
     }
 
     @Transactional(readOnly = true)
-    public List<LibraryDto.Response> getMyLabraries(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(()-> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId: " + userId));
+    // Long userId를 String userEmail로 변경
+    public List<LibraryDto.Response> getMyLibraries(String userEmail) {
+        // 이메일로 사용자를 찾도록 로직 변경
+        User user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(()-> new IllegalArgumentException("사용자를 찾을 수 없습니다. userEmail: " + userEmail));
+
         return userLibraryRepository.findByUser(user).stream()
                 .map(userLibrary -> new LibraryDto.Response(userLibrary.getLibrary()))
                 .collect(Collectors.toList());
@@ -204,9 +214,12 @@ public class LibraryService {
      * 내 도서관 삭제
      */
     @Transactional
-    public void removeFavoriteLibrary(Long userId, Long libraryId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId: " + userId));
+    // Long userId를 String userEmail로 변경
+    public void removeFavoriteLibrary(String userEmail, Long libraryId) {
+        // 이메일로 사용자를 찾도록 로직 변경
+        User user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userEmail: " + userEmail));
+
         UserLibrary userLibrary = userLibraryRepository.findByUserAndLibrary_Id(user, libraryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 도서관이 내 목록에 없습니다."));
 

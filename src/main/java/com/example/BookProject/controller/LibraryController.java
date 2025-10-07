@@ -4,6 +4,8 @@ import com.example.BookProject.dto.LibraryDto;
 import com.example.BookProject.service.LibraryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -16,14 +18,6 @@ public class LibraryController {
 
     private final LibraryService libraryService;
 
-    /**
-     * 근처 도서관을 검색하는 API
-     * 예시 URL: GET /api/libraries/search?latitude=37.5665&longitude=126.9780&distance=3
-     * @param latitude 위도
-     * @param longitude 경도
-     * @param distance 검색 반경(km), 기본값 3km
-     * @return 검색된 도서관 목록 (JSON)
-     */
     @GetMapping("/search")
     public ResponseEntity<List<LibraryDto.Response>> searchNearbyLibraries(
             @RequestParam("latitude") double latitude,
@@ -55,21 +49,20 @@ public class LibraryController {
     // 지금은 userId를 파라미터로 받는다고 가정하겠습니다.
 
     @PostMapping("/{libraryId}/my-library")
-    public ResponseEntity<Void> addMyLibrary(@PathVariable Long libraryId, @RequestParam Long userId) {
-        // libraryService.addFavoriteLibrary(userId, libraryId);
+    public ResponseEntity<Void> addMyLibrary(@PathVariable Long libraryId, @AuthenticationPrincipal UserDetails userDetails) {
+        libraryService.addFavoriteLibrary(userDetails.getUsername(), libraryId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/my-library")
-    public ResponseEntity<List<LibraryDto.Response>> getMyLibraries(@RequestParam Long userId) {
-        // List<LibraryDto.Response> myLibraries = libraryService.getMyLabraries(userId);
-        // return ResponseEntity.ok(myLibraries);
-        return ResponseEntity.ok(Collections.emptyList()); // 임시
+    public ResponseEntity<List<LibraryDto.Response>> getMyLibraries(@AuthenticationPrincipal UserDetails userDetails) {
+        List<LibraryDto.Response> myLibraries = libraryService.getMyLibraries(userDetails.getUsername());
+        return ResponseEntity.ok(myLibraries);
     }
 
     @DeleteMapping("/{libraryId}/my-library")
-    public ResponseEntity<Void> removeMyLibrary(@PathVariable Long libraryId, @RequestParam Long userId) {
-        // libraryService.removeFavoriteLibrary(userId, libraryId);
+    public ResponseEntity<Void> removeMyLibrary(@PathVariable Long libraryId, @AuthenticationPrincipal UserDetails userDetails) {
+        libraryService.removeFavoriteLibrary(userDetails.getUsername(), libraryId);
         return ResponseEntity.ok().build();
     }
 }

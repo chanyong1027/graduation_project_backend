@@ -17,9 +17,6 @@ public class Library {
     @Column(name = "library_id")
     private Long id;
 
-    @Column(name = "nlss_lib_code", unique = true, nullable = false)
-    private String nlssLibCode;
-
     @Column(name = "d4l_lib_code", unique = true)
     private Long d4lLibCode;
 
@@ -42,8 +39,7 @@ public class Library {
     private Double longitude;
 
     @Builder
-    public Library(String nlssLibCode, Long d4lLibCode, String libName, String address, String tel, String homepage, Double latitude, Double longitude) {
-        this.nlssLibCode = nlssLibCode;
+    public Library(Long d4lLibCode, String libName, String address, String tel, String homepage, Double latitude, Double longitude) {
         this.d4lLibCode = d4lLibCode;
         this.libName = libName;
         this.address = address;
