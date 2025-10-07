@@ -14,7 +14,6 @@ public class LibraryDto {
     public static class Response {
         private Long id;
         private Long d4lLibCode;
-        private String nlssLibcode;
         private String libName;
         private String address;
         private String tel;
@@ -25,7 +24,6 @@ public class LibraryDto {
         public Response(Library library) {
             this.id = library.getId();
             this.d4lLibCode = library.getD4lLibCode();
-            this.nlssLibcode = library.getNlssLibCode();
             this.libName = library.getLibName();
             this.address = library.getAddress();
             this.tel = library.getTel();
@@ -96,6 +94,7 @@ public class LibraryDto {
         private BookExistResult response;
 
         @Getter
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class BookExistResult {
             private ResultData result;
         }
