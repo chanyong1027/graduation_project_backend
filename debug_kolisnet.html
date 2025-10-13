@@ -1,0 +1,1839 @@
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"><!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, 뷰 포트 주석 --> <!-- 20.09.21 / 김다슬 / 332633 / 취약점 개선, 뷰 포트 삭제 -->
+  <meta name="author" content="국가자료종합목록">
+  <meta name="description" content="검색 한번으로 전국 도서관 자료를 찾을 수 있습니다.">
+  <meta name="generator" content="jnet co. ltd.">
+  <title>국가자료종합목록</title>
+  <link rel="shortcut icon" href="/kolisnet/include/image/common/ico_sns_favicon.png">
+  <link rel="stylesheet" type="text/css" href="/kolisnet/include/css/sub.css"><!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+  <script src="/kolisnet/include/js/jquery-1.11.3.min.js"></script>
+  <script src="/kolisnet/include/js/json2.min.js"></script><!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script UTF-8 제거 -->
+  <script src="/kolisnet/include/js/jquery.migrate.1.2.1.js"></script>
+  <script src="/kolisnet/include/js/gnb.js"></script>
+  <script src="/kolisnet/include/js/common.js"></script><!-- 20.09.28 / 김다슬 / 333639 / 이용자사이트 검색 속도 개선, kakao.min.js 주석 --> <!-- <script src="//developers.kakao.com/sdk/js/kakao.min.js"></script> -->
+  <script src="https://ds.nl.go.kr/js/nlogger.js"></script>
+  <script>
+function fnPopularSearch(keyword) {
+	var form = document.simpleSearchForm;
+	form.tab.value = "ALL";
+	form.keywordType1.value="total";
+
+	var Pattern = /[\`\~\!\@#$\%\^\&\*\(\)\_\+\|\-\=\[\]\{\}\;\:\'\"\,\.\/\<\>\\\?]/g;
+	form.keyword1.value = keyword.replace(Pattern, "");
+	fnSearchSimple();
+}
+</script><!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+  <script>
+	 //check-kym
+	/* 311070 / 2019.12.12 by.lhs 웹접근성 및 호환성 수정 (추가 :검색결과 페이지제목 )[5.제목 제공] START*/
+	document.title = "검색결과목록(전체) : " + "어린왕자"
+	/* 311070 / 2019.12.12 by.lhs 웹접근성 및 호환성 수정 (추가 :검색결과 페이지제목 )[5.제목 제공] END*/
+	//저작 상세정보 조회
+	function fnEdtionList(ufKey, tab){
+		var form = document.searchParamForm;
+		form.ufKey.value = ufKey;
+		if(isNotEmpty(tab)) {
+			form.tab.value = tab;
+		}
+		form.action = "/kolisnet/search/searchResultEditonList.do";
+		form.submit();
+	}
+	function fnRissList(){
+		var form = document.searchParamForm;
+		form.action = "/kolisnet/search/searchResultRissList.do";
+		form.submit();
+	}
+	function fnNanetList(){
+		var form = document.searchParamForm;
+		form.action = "/kolisnet/search/searchResultNanetList.do";
+		form.submit();
+	}
+</script>
+ </head>
+ <body>
+  <form name="searchParamForm" method="get">
+   <!--  default param --> <input type="hidden" name="tab" value="ALL"> <input type="hidden" name="subTab" value=""> <input type="hidden" name="pageNum" value="1"> <input type="hidden" name="pageSize" value="15"> <input type="hidden" name="sortField" value=""> <input type="hidden" name="sortOrder" value=""> <input type="hidden" name="facetCollType" value=""> <input type="hidden" name="facetYear" value=""> <input type="hidden" name="facetKdc" value=""> <input type="hidden" name="facetLang" value=""> <input type="hidden" name="keyword1" value="어린왕자"> <input type="hidden" name="bookFilter" value="BKGM"> <input type="hidden" name="ufKey" value="">
+  </form><!-- skip -->
+  <ul class="skip">
+   <li><a href="#contentcore">본문 바로가기</a></li>
+   <li><a href="#gnb">메인메뉴 바로가기</a></li>
+   <script>
+		$(function(){
+			let liLength = $("#lnb").closest('ul').find('li').length
+			if(liLength > 0 ){
+				$(".skip").append('<li><a href="#lnb">좌측 서브메뉴 바로가기</a></li>');
+			}
+		})
+		
+	</script><!-- 	<li><a href="#lnbNav">하위메뉴 바로가기</a></li> -->
+  </ul><!-- skip --> <!-- wrap -->
+  <div id="wrap">
+   <header id="header">
+    <!-- 328326 - 웹로그 분석 --> <!-- 20.08.18 / 김다슬 / 330847 / 웹사이트 관리, sslLogin 소스 아래에서 위로 --> <!-- 20.08.18 / 김다슬 / 330847 / 웹사이트 관리, body 주석, form action 제거, target 뒤 스페이스 추가 --> <!-- <body> -->
+    <form name="redirectForm" id="redirectForm" method="post" target="_top">
+     <input type="hidden" name="site" value="kolisnet"> <input type="hidden" id="sso_result" name="sso_result" value="0"> <input type="hidden" id="NLSSOTOKEN" name="NLSSOTOKEN" value=""> <input type="hidden" id="RECKEY" name="RECKEY" value=""> <input type="hidden" id="ORG_YN" name="ORG_YN" value="">
+    </form><!-- </body> --> <!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+    <script>
+	var form = document.redirectForm;
+	var loginOut = 0;
+	console.log(loginOut);
+	if(loginOut == 1){
+		form.action = "https://nl.go.kr/kolisnet/ssoLogin.do";
+		form.submit();
+	}else if(loginOut == -1) {
+		form.action = "https://member.nl.go.kr/sso/ssologout.jsp";
+		form.submit();
+	}
+</script><a href="javascript:void(0)" id="blackBG"><span class="blind">이전으로 돌아가기</span></a> <a href="javascript:void(0)" id="mobileIndexOpen"><span class="blind">메뉴 열기</span></a>
+    <div class="headerInner clearfix">
+     <!-- 20.08.24 / 김다슬 / 330847 / 웹사이트 관리, alt 수정 -->
+     <h1 id="logo"><a href="/kolisnet/index.do" title="메인페이지로 이동"><img src="/kolisnet/include/image/common/logo_title_ori.png" alt="국가자료종합목록 로고"></a></h1>
+     <nav id="gnbNav">
+      <div id="mobileIndexClose">
+       전체메뉴<a href="javascript:void(0)"><span class="blind">메뉴 닫기</span></a>
+      </div>
+      <ul id="gnb" class="clearfix">
+       <li id="gnb1"><a href="/kolisnet/contents/service.do">서비스 소개</a>
+        <ul>
+         <li id="gnb1_1"><a href="/kolisnet/contents/service.do">시스템 소개</a></li>
+         <li id="gnb1_2"><a href="/kolisnet/cooper/cooperList.do">협력기관/참여방법</a>
+          <ul class="MkTab">
+           <li id="gnb1_2_1"><a href="/kolisnet/cooper/cooperList.do">협력기관</a></li><!-- 320430 / 2020.04.27 참여방법 메뉴 제외 요청 -->
+           <li id="gnb1_2_2"><a href="/kolisnet/contents/procedure.do">신청방법</a></li>
+          </ul></li><!-- 20.08.10 / 김다슬 / 330065 / 서비스 소개의 이용안내 게시판 주석  --> <!-- (320228) open api 메뉴 제외 요청 -->
+        </ul></li>
+       <li id="gnb2"><a href="/kolisnet/notice/noticeList.do">공지사항</a></li><!-- 20.08.10 / 김다슬 / 330065 / 이용안내 게시판을 밖으로  -->
+       <li id="gnb9"><a href="/kolisnet/contents/faq.do">이용안내</a>
+        <ul>
+         <li id="gnb9_1"><a href="/kolisnet/contents/faq.do">질문모음</a></li>
+         <li id="gnb9_2"><a href="/kolisnet/contents/help.do">도움말</a></li>
+        </ul></li><!-- 20.08.10 / 김다슬 / 330065 / 로그인했을때, Q&A가 보이게 -->
+       <li id="gnb5"><a href="/kolisnet/mylib/myLibList.do">내서재</a>
+        <ul>
+         <li id="gnb5_1"><a href="/kolisnet/mylib/myLibList.do">관심목록</a></li>
+         <li id="gnb5_2"><a href="/kolisnet/myinfo/myInfoUpdate.do">관심지역설정</a></li>
+         <li id="gnb5_3"><a href="/kolisnet/tags/myTagsList.do">이용자 TAGS</a></li>
+         <li id="gnb5_4"><a href="/kolisnet/qna/errorReportList.do">오류신고목록</a></li>
+        </ul></li>
+       <li id="gnb6"><a href="/kolisnet/basket/basketList.do">바구니</a></li>
+       <li id="gnb7"><a href="javascript:void(0)">정보변경</a></li>
+       <li id="gnb8"><a href="/kolisnet/etc/sitemap.do">사이트맵</a></li>
+      </ul>
+     </nav>
+     <div id="snb">
+      <ul class="siteMenu clearfix">
+       <li class="login"><a href="#login" onclick="javascript:fnMemberLoginPop();return false;" title="새창에서 열림"><img src="/kolisnet/include/image/button/img_login.png" alt=""> 로그인</a></li>
+       <li class="modify"><a href="#join" onclick="javascript:fnMemberJoinPop();return false;" title="새창에서 열림"><img src="/kolisnet/include/image/button/img_join.png" alt=""> <span>회원가입</span></a></li>
+       <li class="basket"><a href="/kolisnet/basket/basketList.do" title="바구니로 이동"><img src="/kolisnet/include/image/button/img_basket.png" alt=""> <span>바구니</span></a></li>
+      </ul>
+     </div>
+    </div>
+   </header><!-- 328326 - 웹로그 분석 --> <!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+   <script src="https://ds.nl.go.kr/js/nlogger.js"></script>
+   <script> 
+	nLogger.configure({
+		nth_service_id: "kolisnet", // 로그 생성 단위, 첨부파일 참조
+		nth_logging_url_base_http: "https://ds.nl.go.kr/nlog", // 수집 서버 주소
+		nth_logging_url_base_https: "https://ds.nl.go.kr/nlog" // 수집 서버 주소 // 수집 서버 주소
+	});
+</script>
+   <script>
+	/* 20.10.15 / 김다슬 / 338585 / 이용자사이트 로그인 오류, dociment.domain 추가 */
+	document.domain = "nl.go.kr";
+
+	nLogger.log();
+</script>
+   <script>
+	function setCookie(cookie_name, value, days) {
+	  var exdate = new Date();
+	  exdate.setDate(exdate.getDate() + days);
+	  // 설정 일수만큼 현재시간에 만료값으로 지정
+
+	  var cookie_value = escape(value) + ((days == null) ? '' : ';    expires=' + exdate.toUTCString());
+	  document.cookie = cookie_name + '=' + cookie_value;
+	}	
+	
+	var getCookie = function(name) {
+        var value = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+        return value? value[2] : null;
+    };
+
+	var userId  = '';
+	if(userId != null && userId != ''){
+		setCookie("UID", userId, '7');
+	}
+	
+</script><!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+   <script src="/kolisnet/include/js/akc.js"></script><!-- 검색 --> <a href="javascript:void(0)" id="layerBG"><span class="blind">이전으로 돌아가기</span></a>
+   <section class="searchSection">
+    <div class="searchSectionWrap clearfix">
+     <form id="simpleSearchForm" name="simpleSearchForm" method="get" action="/kolisnet/search/searchResultList.do">
+      <input type="hidden" name="tab" value="ALL"> <input type="hidden" name="historyYn" value="Y">
+      <h2 class="title">전국 도서관 자료 <span>통합검색 서비스</span></h2>
+      <div class="searchFormWrap">
+       <div class="keywordSearchGroup">
+        <div class="keywordSearchForm">
+         <div class="keywordBox">
+          <div class="searchSelect">
+           <label for="simpleKeywordType1" class="blind">검색분류 선택</label> <select title="검색유형" id="simpleKeywordType1" name="keywordType1"> <option value="total">전체</option> <option value="title">제목</option> <option value="author">저자</option> </select>
+          </div>
+          <div class="keywordInput">
+           <!-- 20.08.12 / 김다슬 / 330253 / 검색어 창 : 검색어를 입력하세요. 로 변경 --> <input id="simpleKeyword1" name="keyword1" title="검색어 입력" autocomplete="off" type="text" value="어린왕자" placeholder="검색어를 입력하세요.">
+          </div><!-- 자동완성 박스 -->
+          <div class="akcBox akcHide" id="akcBox">
+           <div class="akcBody" id="akcBody">
+           </div>
+           <div class="akcFoot">
+            <span><a href="#btn" class="on" id="akc_chk">자동완성 끄기</a></span>
+           </div>
+          </div><!-- //자동완성 박스 --> <a href="javascript:void(0)" id="akcArrow" class="btn_autoword" style="display:table; font-size:0px;">자동완성 펼치기</a> <a href="#langInsert_div" class="lang_btn_search" title="다국어입력" onclick="langInsert_Btn(); return false;">다국어입력</a> <a href="javascript:void(0)" id="simpleSearchBtn" class="btn_search" title="검색">검색</a>
+         </div><!-- <a href="javascript:void(0)" id="akcArrow" class="btn_autoword" style="display:table; font-size:0px;">자동완성 펼치기</a>
+						<a href="#langInsert_div" class="lang_btn_search" title="다국어입력" onclick="langInsert_Btn(); return false;">다국어입력</a> -->
+        </div>
+       </div>
+       <div class="layerSearchPopup" style="display: none;" id="historySearch_div">
+        <div class="layerSearchWrap">
+         <div class="layerContentGroup clearfix">
+          <div class="layerDesc">
+           <h2 class="layerTitle">히스토리검색</h2>
+           <p class="layerTitleComment">사이트 접속 후 본인이 입력했던 검색어 히스토리를 이용해 재검색하는 기능입니다.</p>
+          </div><!--layerDesc-->
+          <div class="layerContent">
+           <div class="history_tbl_wrap">
+            <div class="layerTableWrap">
+             <div class="tbl">
+              <table class="history_tbl">
+               <caption>
+                오늘 하루 검색한 검색시간과 검색조건을 보여줍니다.
+               </caption>
+               <colgroup>
+                <col style="width:100px">
+                <col>
+                <col style="width:90px">
+               </colgroup>
+               <thead>
+                <tr>
+                 <th scope="col">검색시간</th>
+                 <th scope="col">검색조건</th>
+                 <th scope="col">검색</th>
+                </tr>
+               </thead>
+               <tbody>
+                <tr>
+                 <td>08:50:24</td>
+                 <td class="ta_l"></td>
+                 <td><input type="button" class="button" onclick="javascript:fnSearchHistory('http://www.nl.go.kr/kolisnet/search/searchResultAllList.do?historyYn=Y&amp;bookFilter=BKGM&amp;keyword1=%EC%96%B4%EB%A6%B0%EC%99%95%EC%9E%90'); return false;" value="검색"></td>
+                </tr>
+               </tbody>
+              </table>
+             </div>
+            </div>
+            <p class="mt10">※ 히스토리검색은 최근 5건에 검색조건으로만 검색이가능합니다.</p>
+            <div class="layerBtnGroup clearfix">
+             <input type="button" class="btnOnly" value="닫기" title="닫기버튼" onclick="historySearch_closeBtn();">
+            </div>
+           </div>
+          </div><!--//layerContent-->
+         </div><!--//layerContentGroup-->
+        </div><!--//seach_droxbox--> <!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+        <script>
+	function fnSearchHistory(url) {
+		document.location.href = url;
+	}
+</script>
+       </div>
+       <div class="keywordSearchGroup">
+        <div class="sideBtnGroup">
+         <div class="btnArea">
+          <a href="#detailSearchView" id="btn_detail_search" class="btn_detail_search" onclick="detailSearchView(); return false;" title="상세검색">상세검색</a> <a href="#otherSearchView" id="btn_another_search" class="btn_another_search" onclick="otherSearchView(); return false;" title="다른기관 검색">다른기관 검색</a>
+         </div>
+        </div>
+       </div>
+       <div class="check_filter">
+        <!-- 					<input id="bookFilterAll" style="background-color: #a0caed;border-radius: 15px;color: black;font-weight: bold;width: 80px;height: 18px;display: inline-block;"  --> <input type="checkbox" id="bookFilterAll" class="check" title="전체검색 선택" checked> <label for="bookFilterAll" class="check_label">전체</label> <input type="checkbox" id="bookFilter01" class="check" name="bookFilter" value="BKGM" title="일반도서 검색 선택" checked> <label for="bookFilter01" class="check_label">일반도서</label> <input type="checkbox" id="bookFilter02" class="check" name="bookFilter" value="YON" title="잡지/학술지 검색 선택"> <label for="bookFilter02" class="check_label">잡지/학술지</label> <input type="checkbox" id="bookFilter03" class="check" name="bookFilter" value="BKDM" title="학위논문 검색 선택"> <label for="bookFilter03" class="check_label">학위논문</label> <input type="checkbox" id="bookFilter04" class="check" name="bookFilter" value="NK" title="멀티미디어/비도서 검색 선택"> <label for="bookFilter04" class="check_label">멀티미디어/비도서</label> <input type="checkbox" id="bookFilter06" class="check" name="bookFilter" value="NP" title="디지털신문 검색 선택"> <label for="bookFilter06" class="check_label">디지털신문</label> <input type="checkbox" id="bookFilter05" class="check" name="bookFilter" value="OT" title="다른기관자료 검색 선택"> <label for="bookFilter05" class="check_label">다른기관자료</label>
+       </div>
+      </div>
+     </form>
+    </div><!-- //간략검색 --> <!-- 다국어입력기 -->
+    <div class="layerSearchPopup" style="display: none;" id="langInsert_div">
+     <div class="layerSearchWrap">
+      <div class="layerContentGroup clearfix">
+       <div class="layerDesc">
+        <div class="layerTitleWrap">
+         <h3 class="layerTitle">다국어검색</h3>
+         <p class="layerTitleComment">해당문자를 클릭해 주세요.</p>
+        </div>
+       </div><!--layerDesc-->
+       <div class="layerContent">
+        <div class="Mlang_tbl_wrap">
+         <div class="worldword">
+          <div id="none">
+           <ul class="language_search">
+            <li><a class="selected" href="#none" id="hiragana" title="선택됨">히라가나</a></li>
+            <li><a href="#none" id="katakana">가타카나</a></li>
+            <li><a href="#none" id="archaic_word">한글고어</a></li>
+            <li><a href="#none" id="greek">그리스문자</a></li>
+            <li><a href="#none" id="sign_of_aggregation_taste">괄호기호</a></li>
+            <li><a href="#none" id="scholarship">학술기호</a></li>
+            <li><a href="#none" id="skill_taste">기술기호</a></li>
+            <li><a href="#none" id="latin">라틴문자</a></li>
+            <li><a href="#none" id="russian">러시아문자</a></li>
+            <li><a href="#none" id="unit_symbol">단위기호</a></li>
+            <li><a href="#none" id="normal_sign">일반기호</a></li>
+            <li><a href="#none" id="roma">로마자</a></li>
+            <li><a href="#none" id="subscript">첨자기호</a></li>
+           </ul><!-- 히라가나 -->
+           <div class="languageContents" style="display: block;" id="hiragana_div">
+            <h3 style="font-size:0;">히라가나</h3>
+            <ul>
+             <li><a href="#none">あ</a></li>
+             <li><a href="#none">ぁ</a></li>
+             <li><a href="#none">か</a></li>
+             <li><a href="#none">が</a></li>
+             <li><a href="#none">さ</a></li>
+             <li><a href="#none">ざ</a></li>
+             <li><a href="#none">た</a></li>
+             <li><a href="#none">だ</a></li>
+             <li><a href="#none">な</a></li>
+             <li><a href="#none">は</a></li>
+             <li><a href="#none">ば</a></li>
+             <li><a href="#none">ぱ</a></li>
+             <li><a href="#none">ま</a></li>
+             <li><a href="#none">や</a></li>
+             <li><a href="#none">ゃ</a></li>
+             <li><a href="#none">ら</a></li>
+             <li><a href="#none">わ</a></li>
+             <li><a href="#none">ゎ</a></li>
+             <li><a href="#none">ん</a></li>
+            </ul>
+            <ul>
+             <li><a href="#none">い</a></li>
+             <li><a href="#none">ぃ</a></li>
+             <li><a href="#none">き</a></li>
+             <li><a href="#none">ぎ</a></li>
+             <li><a href="#none">し</a></li>
+             <li><a href="#none">じ</a></li>
+             <li><a href="#none">ち</a></li>
+             <li><a href="#none">ぢ</a></li>
+             <li><a href="#none">に</a></li>
+             <li><a href="#none">ひ</a></li>
+             <li><a href="#none">び</a></li>
+             <li><a href="#none">ぴ</a></li>
+             <li><a href="#none">み</a></li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li><a href="#none">り</a></li>
+            </ul>
+            <ul>
+             <li><a href="#none">う</a></li>
+             <li><a href="#none">ぅ</a></li>
+             <li><a href="#none">く</a></li>
+             <li><a href="#none">ぐ</a></li>
+             <li><a href="#none">す</a></li>
+             <li><a href="#none">ず</a></li>
+             <li><a href="#none">つ</a></li>
+             <li><a href="#none">づ</a></li>
+             <li><a href="#none">っ</a></li>
+             <li><a href="#none">ぬ</a></li>
+             <li><a href="#none">ふ</a></li>
+             <li><a href="#none">ぶ</a></li>
+             <li><a href="#none">ぷ</a></li>
+             <li><a href="#none">む</a></li>
+             <li><a href="#none">ゆ</a></li>
+             <li><a href="#none">ゅ</a></li>
+             <li><a href="#none">る</a></li>
+            </ul>
+            <ul>
+             <li><a href="#none">え</a></li>
+             <li><a href="#none">ぇ</a></li>
+             <li><a href="#none">け</a></li>
+             <li><a href="#none">げ</a></li>
+             <li><a href="#none">せ</a></li>
+             <li><a href="#none">ぜ</a></li>
+             <li><a href="#none">て</a></li>
+             <li><a href="#none">で</a></li>
+             <li><a href="#none">ね</a></li>
+             <li><a href="#none">へ</a></li>
+             <li><a href="#none">べ</a></li>
+             <li><a href="#none">ぺ</a></li>
+             <li><a href="#none">め</a></li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li><a href="#none">れ</a></li>
+            </ul>
+            <ul>
+             <li><a href="#none">お</a></li>
+             <li><a href="#none">ぉ</a></li>
+             <li><a href="#none">こ</a></li>
+             <li><a href="#none">ご</a></li>
+             <li><a href="#none">そ</a></li>
+             <li><a href="#none">ぞ</a></li>
+             <li><a href="#none">と</a></li>
+             <li><a href="#none">ど</a></li>
+             <li><a href="#none">の</a></li>
+             <li><a href="#none">ほ</a></li>
+             <li><a href="#none">ぼ</a></li>
+             <li><a href="#none">ぽ</a></li>
+             <li><a href="#none">も</a></li>
+             <li><a href="#none">よ</a></li>
+             <li><a href="#none">ょ</a></li>
+             <li><a href="#none">ろ</a></li>
+             <li><a href="#none">を</a></li>
+            </ul>
+           </div><!-- //히라가나 --> <!-- 가타카나 -->
+           <div class="languageContents" style="display: none;" id="katakana_div">
+            <h3 style="font-size:0;">가타카나</h3>
+            <ul>
+             <li><a href="#none">ア</a></li>
+             <li><a href="#none">ァ</a></li>
+             <li><a href="#none">カ</a></li>
+             <li><a href="#none">ガ</a></li>
+             <li><a href="#none">サ</a></li>
+             <li><a href="#none">ザ</a></li>
+             <li><a href="#none">タ</a></li>
+             <li><a href="#none">ダ</a></li>
+             <li><a href="#none">ナ</a></li>
+             <li><a href="#none">ハ</a></li>
+             <li><a href="#none">バ</a></li>
+             <li><a href="#none">パ</a></li>
+             <li><a href="#none">マ</a></li>
+             <li><a href="#none">ヤ</a></li>
+             <li><a href="#none">ャ</a></li>
+             <li><a href="#none">ラ</a></li>
+             <li><a href="#none">ワ</a></li>
+             <li><a href="#none">ヮ</a></li>
+             <li><a href="#none">ン</a></li>
+            </ul>
+            <ul>
+             <li><a href="#none">イ</a></li>
+             <li><a href="#none">ィ</a></li>
+             <li><a href="#none">キ</a></li>
+             <li><a href="#none">ギ</a></li>
+             <li><a href="#none">シ</a></li>
+             <li><a href="#none">ジ</a></li>
+             <li><a href="#none">チ</a></li>
+             <li><a href="#none">ヂ</a></li>
+             <li><a href="#none">ニ</a></li>
+             <li><a href="#none">ヒ</a></li>
+             <li><a href="#none">ビ</a></li>
+             <li><a href="#none">ピ</a></li>
+             <li><a href="#none">ミ</a></li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li><a href="#none">リ</a></li>
+            </ul>
+            <ul>
+             <li><a href="#none">ウ</a></li>
+             <li><a href="#none">ゥ</a></li>
+             <li><a href="#none">ク</a></li>
+             <li><a href="#none">グ</a></li>
+             <li><a href="#none">ス</a></li>
+             <li><a href="#none">ズ</a></li>
+             <li><a href="#none">ツ</a></li>
+             <li><a href="#none">ヅ</a></li>
+             <li><a href="#none">ッ</a></li>
+             <li><a href="#none">ヌ</a></li>
+             <li><a href="#none">フ</a></li>
+             <li><a href="#none">ブ</a></li>
+             <li><a href="#none">プ</a></li>
+             <li><a href="#none">ム</a></li>
+             <li><a href="#none">ユ</a></li>
+             <li><a href="#none">ュ</a></li>
+             <li><a href="#none">ル</a></li>
+            </ul>
+            <ul>
+             <li><a href="#none">エ</a></li>
+             <li><a href="#none">ェ</a></li>
+             <li><a href="#none">ケ</a></li>
+             <li><a href="#none">ゲ</a></li>
+             <li><a href="#none">セ</a></li>
+             <li><a href="#none">ゼ</a></li>
+             <li><a href="#none">テ</a></li>
+             <li><a href="#none">デ</a></li>
+             <li><a href="#none">ネ</a></li>
+             <li><a href="#none">ヘ</a></li>
+             <li><a href="#none">ベ</a></li>
+             <li><a href="#none">ペ</a></li>
+             <li><a href="#none">メ</a></li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li>&nbsp;</li>
+             <li><a href="#none">レ</a></li>
+            </ul>
+            <ul>
+             <li><a href="#none">オ</a></li>
+             <li><a href="#none">ォ</a></li>
+             <li><a href="#none">コ</a></li>
+             <li><a href="#none">ゴ</a></li>
+             <li><a href="#none">ソ</a></li>
+             <li><a href="#none">ゾ</a></li>
+             <li><a href="#none">ト</a></li>
+             <li><a href="#none">ド</a></li>
+             <li><a href="#none">ノ</a></li>
+             <li><a href="#none">ホ</a></li>
+             <li><a href="#none">ボ</a></li>
+             <li><a href="#none">ポ</a></li>
+             <li><a href="#none">モ</a></li>
+             <li><a href="#none">ヨ</a></li>
+             <li><a href="#none">ョ</a></li>
+             <li><a href="#none">ロ</a></li>
+             <li><a href="#none">ヲ</a></li>
+             <li><a href="#none">―</a></li>
+            </ul>
+           </div><!-- //가타카나 --> <!-- 한글고어 -->
+           <div class="languageContents" style="display: none;" id="archaic_word_div">
+            <h3 style="font-size:0;">한글고어</h3>
+            <ul>
+             <li><a href="#none">ㅥ</a></li>
+             <li><a href="#none">ㅦ</a></li>
+             <li><a href="#none">ㅧ</a></li>
+             <li><a href="#none">ㅨ</a></li>
+             <li><a href="#none">ㅩ</a></li>
+             <li><a href="#none">ㅪ</a></li>
+             <li><a href="#none">ㅫ</a></li>
+             <li><a href="#none">ㅬ</a></li>
+             <li><a href="#none">ㅭ</a></li>
+             <li><a href="#none">ㅮ</a></li>
+             <li><a href="#none">ㅯ</a></li>
+             <li><a href="#none">ㅰ</a></li>
+             <li><a href="#none">ㅱ</a></li>
+             <li><a href="#none">ㅲ</a></li>
+             <li><a href="#none">ㅳ</a></li>
+             <li><a href="#none">ㅴ</a></li>
+             <li><a href="#none">ㅵ</a></li>
+             <li><a href="#none">ㅶ</a></li>
+             <li><a href="#none">ㅷ</a></li>
+             <li><a href="#none">ㅸ</a></li>
+             <li><a href="#none">ㅹ</a></li>
+             <li><a href="#none">ㅺ</a></li>
+             <li><a href="#none">ㅻ</a></li>
+             <li><a href="#none">ㅼ</a></li>
+             <li><a href="#none">ㅽ</a></li>
+             <li><a href="#none">ㅾ</a></li>
+             <li><a href="#none">ㅿ</a></li>
+             <li><a href="#none">ㆀ</a></li>
+             <li><a href="#none">ㆁ</a></li>
+             <li><a href="#none">ㆂ</a></li>
+             <li><a href="#none">ㆃ</a></li>
+             <li><a href="#none">ㆄ</a></li>
+             <li><a href="#none">ㆅ</a></li>
+             <li><a href="#none">ㆆ</a></li>
+             <li><a href="#none">ㆇ</a></li>
+             <li><a href="#none">ㆈ</a></li>
+             <li><a href="#none">ㆉ</a></li>
+             <li><a href="#none">ㆊ</a></li>
+             <li><a href="#none">ㆋ</a></li>
+             <li><a href="#none">ㆌ</a></li>
+             <li><a href="#none">ㆍ</a></li>
+             <li><a href="#none">ㆎ</a></li>
+            </ul>
+           </div><!-- //한글고어 --> <!-- 그리스문자 -->
+           <div class="languageContents" style="display: none;" id="greek_div">
+            <h3 style="font-size:0;">그리스문자</h3>
+            <ul>
+             <li><a href="#none">Α</a></li>
+             <li><a href="#none">Β</a></li>
+             <li><a href="#none">Γ</a></li>
+             <li><a href="#none">Δ</a></li>
+             <li><a href="#none">Ε</a></li>
+             <li><a href="#none">Ζ</a></li>
+             <li><a href="#none">Η</a></li>
+             <li><a href="#none">Θ</a></li>
+             <li><a href="#none">Ι</a></li>
+             <li><a href="#none">Κ</a></li>
+             <li><a href="#none">Λ</a></li>
+             <li><a href="#none">Μ</a></li>
+             <li><a href="#none">Ν</a></li>
+             <li><a href="#none">Ξ</a></li>
+             <li><a href="#none">Ο</a></li>
+             <li><a href="#none">Π</a></li>
+             <li><a href="#none">Ρ</a></li>
+             <li><a href="#none">Σ</a></li>
+             <li><a href="#none">Τ</a></li>
+             <li><a href="#none">Υ</a></li>
+             <li><a href="#none">Φ</a></li>
+             <li><a href="#none">Χ</a></li>
+             <li><a href="#none">Ψ</a></li>
+             <li><a href="#none">Ω</a></li>
+             <li><a href="#none">α</a></li>
+             <li><a href="#none">β</a></li>
+             <li><a href="#none">γ</a></li>
+             <li><a href="#none">δ</a></li>
+             <li><a href="#none">ε</a></li>
+             <li><a href="#none">ζ</a></li>
+             <li><a href="#none">η</a></li>
+             <li><a href="#none">θ</a></li>
+             <li><a href="#none">ι</a></li>
+             <li><a href="#none">κ</a></li>
+             <li><a href="#none">λ</a></li>
+             <li><a href="#none">μ</a></li>
+             <li><a href="#none">ν</a></li>
+             <li><a href="#none">ξ</a></li>
+             <li><a href="#none">ο</a></li>
+             <li><a href="#none">π</a></li>
+             <li><a href="#none">ρ</a></li>
+             <li><a href="#none">σ</a></li>
+             <li><a href="#none">τ</a></li>
+             <li><a href="#none">υ</a></li>
+             <li><a href="#none">φ</a></li>
+             <li><a href="#none">χ</a></li>
+             <li><a href="#none">ψ</a></li>
+             <li><a href="#none">ω</a></li>
+            </ul>
+           </div><!-- //그리스문자 --> <!-- 괄호기호 -->
+           <div class="languageContents" style="display: none;" id="sign_of_aggregation_taste_div">
+            <h3 style="font-size:0;">괄호기호</h3>
+            <ul>
+             <li><a href="#none">‘</a></li>
+             <li><a href="#none">’</a></li>
+             <li><a href="#none">“</a></li>
+             <li><a href="#none">”</a></li>
+             <li><a href="#none">〔</a></li>
+             <li><a href="#none">〕</a></li>
+             <li><a href="#none">〈</a></li>
+             <li><a href="#none">〉</a></li>
+             <li><a href="#none">「</a></li>
+             <li><a href="#none">」</a></li>
+             <li><a href="#none">『</a></li>
+             <li><a href="#none">』</a></li>
+             <li><a href="#none">【</a></li>
+             <li><a href="#none">】</a></li>
+             <li><a href="#none">＂</a></li>
+             <li><a href="#none">（</a></li>
+             <li><a href="#none">）</a></li>
+             <li><a href="#none">［</a></li>
+             <li><a href="#none">］</a></li>
+             <li><a href="#none">｛</a></li>
+             <li><a href="#none">｝</a></li>
+            </ul>
+           </div><!-- //괄호기호 --> <!-- 학술기호 -->
+           <div class="languageContents" style="display: none;" id="scholarship_div">
+            <h3 style="font-size:0;">학술기호</h3>
+            <ul>
+             <li><a href="#none">±</a></li>
+             <li><a href="#none">×</a></li>
+             <li><a href="#none">÷</a></li>
+             <li><a href="#none">≠</a></li>
+             <li><a href="#none">≤</a></li>
+             <li><a href="#none">≥</a></li>
+             <li><a href="#none">∞</a></li>
+             <li><a href="#none">∴</a></li>
+             <li><a href="#none">♂</a></li>
+             <li><a href="#none">♀</a></li>
+             <li><a href="#none">∠</a></li>
+             <li><a href="#none">⊥</a></li>
+             <li><a href="#none">⌒</a></li>
+             <li><a href="#none">∂</a></li>
+             <li><a href="#none">∇</a></li>
+             <li><a href="#none">≡</a></li>
+             <li><a href="#none">≒</a></li>
+             <li><a href="#none">≪</a></li>
+             <li><a href="#none">≫</a></li>
+             <li><a href="#none">√</a></li>
+             <li><a href="#none">∽</a></li>
+             <li><a href="#none">∝</a></li>
+             <li><a href="#none">∵</a></li>
+             <li><a href="#none">∫</a></li>
+             <li><a href="#none">∬</a></li>
+             <li><a href="#none">∈</a></li>
+             <li><a href="#none">∋</a></li>
+             <li><a href="#none">⊆</a></li>
+             <li><a href="#none">⊇</a></li>
+             <li><a href="#none">⊂</a></li>
+             <li><a href="#none">⊃</a></li>
+             <li><a href="#none">∪</a></li>
+             <li><a href="#none">∩</a></li>
+             <li><a href="#none">∧</a></li>
+             <li><a href="#none">∨</a></li>
+             <li><a href="#none">￢</a></li>
+             <li><a href="#none">⇒</a></li>
+             <li><a href="#none">⇔</a></li>
+             <li><a href="#none">∀</a></li>
+             <li><a href="#none">∃</a></li>
+             <li><a href="#none">∮</a></li>
+             <li><a href="#none">∑</a></li>
+             <li><a href="#none">∏</a></li>
+             <li><a href="#none">＋</a></li>
+             <li><a href="#none">－</a></li>
+             <li><a href="#none">＜</a></li>
+             <li><a href="#none">＝</a></li>
+             <li><a href="#none">＞</a></li>
+            </ul>
+           </div><!-- //학술기호 --> <!-- 기술기호 -->
+           <div class="languageContents" style="display: none;" id="skill_taste_div">
+            <h3 style="font-size:0;">기술기호</h3>
+            <ul>
+             <li><a href="#none">、</a></li>
+             <li><a href="#none">。</a></li>
+             <li><a href="#none">·</a></li>
+             <li><a href="#none">‥</a></li>
+             <li><a href="#none">…</a></li>
+             <li><a href="#none">¨</a></li>
+             <li><a href="#none">〃</a></li>
+             <li><a href="#none">­</a></li>
+             <li><a href="#none">―</a></li>
+             <li><a href="#none">∥</a></li>
+             <li><a href="#none">＼</a></li>
+             <li><a href="#none">∼</a></li>
+             <li><a href="#none">´</a></li>
+             <li><a href="#none">～</a></li>
+             <li><a href="#none">ˇ</a></li>
+             <li><a href="#none">˘</a></li>
+             <li><a href="#none">˝</a></li>
+             <li><a href="#none">˚</a></li>
+             <li><a href="#none">˙</a></li>
+             <li><a href="#none">¸</a></li>
+             <li><a href="#none">˛</a></li>
+             <li><a href="#none">¡</a></li>
+             <li><a href="#none">¿</a></li>
+             <li><a href="#none">ː</a></li>
+             <li><a href="#none">！</a></li>
+             <li><a href="#none">＇</a></li>
+             <li><a href="#none">，</a></li>
+             <li><a href="#none">．</a></li>
+             <li><a href="#none">／</a></li>
+             <li><a href="#none">：</a></li>
+             <li><a href="#none">；</a></li>
+             <li><a href="#none">？</a></li>
+             <li><a href="#none">＾</a></li>
+             <li><a href="#none">＿</a></li>
+             <li><a href="#none">｀</a></li>
+             <li><a href="#none">｜</a></li>
+             <li><a href="#none">￣</a></li>
+            </ul>
+           </div><!-- //기술기호 --> <!-- 라틴문자 -->
+           <div class="languageContents" style="display: none;" id="latin_div">
+            <h3 style="font-size:0;">라틴문자</h3>
+            <ul>
+             <li><a href="#none">Æ</a></li>
+             <li><a href="#none">Ð</a></li>
+             <li><a href="#none">Ħ</a></li>
+             <li><a href="#none">ĲvĿ</a></li>
+             <li><a href="#none">Ł</a></li>
+             <li><a href="#none">Ø</a></li>
+             <li><a href="#none">Œ</a></li>
+             <li><a href="#none">Þ</a></li>
+             <li><a href="#none">Ŧ</a></li>
+             <li><a href="#none">Ŋ</a></li>
+             <li><a href="#none">æ</a></li>
+             <li><a href="#none">đ</a></li>
+             <li><a href="#none">ð</a></li>
+             <li><a href="#none">ħ</a></li>
+             <li><a href="#none">ı</a></li>
+             <li><a href="#none">ĳ</a></li>
+             <li><a href="#none">ĸ</a></li>
+             <li><a href="#none">ŀ</a></li>
+             <li><a href="#none">ł</a></li>
+             <li><a href="#none">ø</a></li>
+             <li><a href="#none">œ</a></li>
+             <li><a href="#none">ß</a></li>
+             <li><a href="#none">þ</a></li>
+             <li><a href="#none">ŧ</a></li>
+             <li><a href="#none">ŋ</a></li>
+             <li><a href="#none">ŉ</a></li>
+            </ul>
+           </div><!-- //라틴문자 --> <!-- 러시아문자 -->
+           <div class="languageContents" style="display: none;" id="russian_div">
+            <h3 style="font-size:0;">러시아문자</h3>
+            <ul>
+             <li><a href="#none">А</a></li>
+             <li><a href="#none">Б</a></li>
+             <li><a href="#none">В</a></li>
+             <li><a href="#none">Г</a></li>
+             <li><a href="#none">Д</a></li>
+             <li><a href="#none">Е</a></li>
+             <li><a href="#none">Ё</a></li>
+             <li><a href="#none">Ж</a></li>
+             <li><a href="#none">З</a></li>
+             <li><a href="#none">И</a></li>
+             <li><a href="#none">Й</a></li>
+             <li><a href="#none">К</a></li>
+             <li><a href="#none">Л</a></li>
+             <li><a href="#none">М</a></li>
+             <li><a href="#none">Н</a></li>
+             <li><a href="#none">О</a></li>
+             <li><a href="#none">П</a></li>
+             <li><a href="#none">Р</a></li>
+             <li><a href="#none">С</a></li>
+             <li><a href="#none">Т</a></li>
+             <li><a href="#none">У</a></li>
+             <li><a href="#none">Ф</a></li>
+             <li><a href="#none">Х</a></li>
+             <li><a href="#none">Ц</a></li>
+             <li><a href="#none">Ч</a></li>
+             <li><a href="#none">Ш</a></li>
+             <li><a href="#none">Щ</a></li>
+             <li><a href="#none">Ъ</a></li>
+             <li><a href="#none">Ы</a></li>
+             <li><a href="#none">Ь</a></li>
+             <li><a href="#none">Э</a></li>
+             <li><a href="#none">Ю</a></li>
+             <li><a href="#none">Я</a></li>
+             <li><a href="#none">а</a></li>
+             <li><a href="#none">б</a></li>
+             <li><a href="#none">в</a></li>
+             <li><a href="#none">г</a></li>
+             <li><a href="#none">д</a></li>
+             <li><a href="#none">е</a></li>
+             <li><a href="#none">ё</a></li>
+             <li><a href="#none">ж</a></li>
+             <li><a href="#none">з</a></li>
+             <li><a href="#none">и</a></li>
+             <li><a href="#none">й</a></li>
+             <li><a href="#none">к</a></li>
+             <li><a href="#none">л</a></li>
+             <li><a href="#none">м</a></li>
+             <li><a href="#none">н</a></li>
+             <li><a href="#none">о</a></li>
+             <li><a href="#none">п</a></li>
+             <li><a href="#none">р</a></li>
+             <li><a href="#none">с</a></li>
+             <li><a href="#none">т</a></li>
+             <li><a href="#none">у</a></li>
+             <li><a href="#none">ф</a></li>
+             <li><a href="#none">х</a></li>
+             <li><a href="#none">ц</a></li>
+             <li><a href="#none">ч</a></li>
+             <li><a href="#none">ш</a></li>
+             <li><a href="#none">щ</a></li>
+             <li><a href="#none">ъ</a></li>
+             <li><a href="#none">ы</a></li>
+             <li><a href="#none">ь</a></li>
+             <li><a href="#none">э</a></li>
+             <li><a href="#none">ю</a></li>
+             <li><a href="#none">я</a></li>
+            </ul>
+           </div><!-- //러시아문자 --> <!-- 단위기호 -->
+           <div class="languageContents" style="display: none;" id="unit_symbol_div">
+            <h3 style="font-size:0;">단위기호</h3>
+            <ul>
+             <li><a href="#none">′</a></li>
+             <li><a href="#none">″</a></li>
+             <li><a href="#none">℃</a></li>
+             <li><a href="#none">Å</a></li>
+             <li><a href="#none">￠</a></li>
+             <li><a href="#none">￡</a></li>
+             <li><a href="#none">￥</a></li>
+             <li><a href="#none">¤</a></li>
+             <li><a href="#none">℉</a></li>
+             <li><a href="#none">‰</a></li>
+             <li><a href="#none">＄</a></li>
+             <li><a href="#none">％</a></li>
+             <li><a href="#none">Ｆ</a></li>
+             <li><a href="#none">￦</a></li>
+             <li><a href="#none">㎕</a></li>
+             <li><a href="#none">㎖</a></li>
+             <li><a href="#none">㎗</a></li>
+             <li><a href="#none">ℓ</a></li>
+             <li><a href="#none">㎘</a></li>
+             <li><a href="#none">㏄</a></li>
+             <li><a href="#none">㎣</a></li>
+             <li><a href="#none">㎤</a></li>
+             <li><a href="#none">㎥</a></li>
+             <li><a href="#none">㎦</a></li>
+             <li><a href="#none">㎙</a></li>
+             <li><a href="#none">㎚</a></li>
+             <li><a href="#none">㎛</a></li>
+             <li><a href="#none">㎜</a></li>
+             <li><a href="#none">㎝</a></li>
+             <li><a href="#none">㎞</a></li>
+             <li><a href="#none">㎟</a></li>
+             <li><a href="#none">㎠</a></li>
+             <li><a href="#none">㎡</a></li>
+             <li><a href="#none">㎢</a></li>
+             <li><a href="#none">㏊</a></li>
+             <li><a href="#none">㎍</a></li>
+             <li><a href="#none">㎎</a></li>
+             <li><a href="#none">㎏</a></li>
+             <li><a href="#none">㏏</a></li>
+             <li><a href="#none">㎈</a></li>
+             <li><a href="#none">㎉</a></li>
+             <li><a href="#none">㏈</a></li>
+             <li><a href="#none">㎧</a></li>
+             <li><a href="#none">㎨</a></li>
+             <li><a href="#none">㎰</a></li>
+             <li><a href="#none">㎱</a></li>
+             <li><a href="#none">㎲</a></li>
+             <li><a href="#none">㎳</a></li>
+             <li><a href="#none">㎴</a></li>
+             <li><a href="#none">㎵</a></li>
+             <li><a href="#none">㎶</a></li>
+             <li><a href="#none">㎷</a></li>
+             <li><a href="#none">㎸</a></li>
+             <li><a href="#none">㎹</a></li>
+             <li><a href="#none">㎀</a></li>
+             <li><a href="#none">㎁</a></li>
+             <li><a href="#none">㎂</a></li>
+             <li><a href="#none">㎃</a></li>
+             <li><a href="#none">㎄</a></li>
+             <li><a href="#none">㎺</a></li>
+             <li><a href="#none">㎻</a></li>
+             <li><a href="#none">㎽</a></li>
+             <li><a href="#none">㎾</a></li>
+             <li><a href="#none">㎿</a></li>
+             <li><a href="#none">㎐</a></li>
+             <li><a href="#none">㎑</a></li>
+             <li><a href="#none">㎒</a></li>
+             <li><a href="#none">㎓</a></li>
+             <li><a href="#none">㎔</a></li>
+             <li><a href="#none">Ω</a></li>
+             <li><a href="#none">㏀</a></li>
+             <li><a href="#none">㏁</a></li>
+             <li><a href="#none">㎊</a></li>
+             <li><a href="#none">㎋</a></li>
+             <li><a href="#none">㎌</a></li>
+             <li><a href="#none">㏖</a></li>
+             <li><a href="#none">㏅</a></li>
+             <li><a href="#none">㎭</a></li>
+             <li><a href="#none">㎮</a></li>
+             <li><a href="#none">㎯</a></li>
+             <li><a href="#none">㏛</a></li>
+             <li><a href="#none">㎩</a></li>
+             <li><a href="#none">㎪</a></li>
+             <li><a href="#none">㎫</a></li>
+             <li><a href="#none">㎬</a></li>
+             <li><a href="#none">㏝</a></li>
+             <li><a href="#none">㏐</a></li>
+             <li><a href="#none">㏓</a></li>
+             <li><a href="#none">㏃</a></li>
+             <li><a href="#none">㏉</a></li>
+             <li><a href="#none">㏜</a></li>
+             <li><a href="#none">㏆</a></li>
+            </ul>
+           </div><!-- //단위기호 --> <!-- 일반기호 -->
+           <div class="languageContents" style="display: none;" id="normal_sign_div">
+            <h3 style="font-size:0;">일반기호</h3>
+            <ul>
+             <li><a href="#none">§</a></li>
+             <li><a href="#none">※</a></li>
+             <li><a href="#none">☆</a></li>
+             <li><a href="#none">★</a></li>
+             <li><a href="#none">○</a></li>
+             <li><a href="#none">●</a></li>
+             <li><a href="#none">◎</a></li>
+             <li><a href="#none">◇</a></li>
+             <li><a href="#none">◆</a></li>
+             <li><a href="#none">□</a></li>
+             <li><a href="#none">■</a></li>
+             <li><a href="#none">△</a></li>
+             <li><a href="#none">▽</a></li>
+             <li><a href="#none">→</a></li>
+             <li><a href="#none">←</a></li>
+             <li><a href="#none">↑</a></li>
+             <li><a href="#none">↓</a></li>
+             <li><a href="#none">↔</a></li>
+             <li><a href="#none">〓</a></li>
+             <li><a href="#none">◁</a></li>
+             <li><a href="#none">◀</a></li>
+             <li><a href="#none">▷</a></li>
+             <li><a href="#none">▶</a></li>
+             <li><a href="#none">♤</a></li>
+             <li><a href="#none">♠</a></li>
+             <li><a href="#none">♡</a></li>
+             <li><a href="#none">♥</a></li>
+             <li><a href="#none">♧</a></li>
+             <li><a href="#none">♣</a></li>
+             <li><a href="#none">⊙</a></li>
+             <li><a href="#none">◈</a></li>
+             <li><a href="#none">▣</a></li>
+             <li><a href="#none">◐</a></li>
+             <li><a href="#none">◑</a></li>
+             <li><a href="#none">▒</a></li>
+             <li><a href="#none">▤</a></li>
+             <li><a href="#none">▥</a></li>
+             <li><a href="#none">▨</a></li>
+             <li><a href="#none">▧</a></li>
+             <li><a href="#none">▦</a></li>
+             <li><a href="#none">▩</a></li>
+             <li><a href="#none">♨</a></li>
+             <li><a href="#none">☏</a></li>
+             <li><a href="#none">☎</a></li>
+             <li><a href="#none">☜</a></li>
+             <li><a href="#none">☞</a></li>
+             <li><a href="#none">¶</a></li>
+             <li><a href="#none">†</a></li>
+             <li><a href="#none">‡</a></li>
+             <li><a href="#none">↕</a></li>
+             <li><a href="#none">↗</a></li>
+             <li><a href="#none">↙</a></li>
+             <li><a href="#none">↖</a></li>
+             <li><a href="#none">↘</a></li>
+             <li><a href="#none">♭</a></li>
+             <li><a href="#none">♩</a></li>
+             <li><a href="#none">♪</a></li>
+             <li><a href="#none">♬</a></li>
+             <li><a href="#none">㉿</a></li>
+             <li><a href="#none">㈜</a></li>
+             <li><a href="#none">№</a></li>
+             <li><a href="#none">㏇</a></li>
+             <li><a href="#none">™</a></li>
+             <li><a href="#none">㏂</a></li>
+             <li><a href="#none">㏘</a></li>
+             <li><a href="#none">℡</a></li>
+             <li><a href="#none">＃</a></li>
+             <li><a href="#none">＆</a></li>
+             <li><a href="#none">＊</a></li>
+             <li><a href="#none">＠</a></li>
+             <li><a href="#none">ª</a></li>
+             <li><a href="#none">º</a></li>
+            </ul>
+           </div><!-- //일반기호 --> <!-- 로마자 -->
+           <div class="languageContents" style="display: none;" id="roma_div">
+            <h3 style="font-size:0;">로마자</h3>
+            <ul>
+             <li><a href="#none">ⅰ</a></li>
+             <li><a href="#none">ⅱ</a></li>
+             <li><a href="#none">ⅲ</a></li>
+             <li><a href="#none">ⅳ</a></li>
+             <li><a href="#none">ⅴ</a></li>
+             <li><a href="#none">ⅵ</a></li>
+             <li><a href="#none">ⅶ</a></li>
+             <li><a href="#none">ⅷ</a></li>
+             <li><a href="#none">ⅸ</a></li>
+             <li><a href="#none">ⅹ</a></li>
+             <li><a href="#none">Ⅰ</a></li>
+             <li><a href="#none">Ⅱ</a></li>
+             <li><a href="#none">Ⅲ</a></li>
+             <li><a href="#none">Ⅳ</a></li>
+             <li><a href="#none">Ⅴ</a></li>
+             <li><a href="#none">Ⅵ</a></li>
+             <li><a href="#none">Ⅶ</a></li>
+             <li><a href="#none">Ⅷ</a></li>
+             <li><a href="#none">Ⅸ</a></li>
+             <li><a href="#none">Ⅹ</a></li>
+            </ul>
+           </div><!-- //로마자 --> <!-- 첨자기호 -->
+           <div class="languageContents" style="display: none;" id="subscript_div">
+            <h3 style="font-size:0;">첨자기호</h3>
+            <ul>
+             <li><a href="#none">½</a></li>
+             <li><a href="#none">⅓</a></li>
+             <li><a href="#none">⅔</a></li>
+             <li><a href="#none">¼</a></li>
+             <li><a href="#none">¾</a></li>
+             <li><a href="#none">⅛</a></li>
+             <li><a href="#none">⅜</a></li>
+             <li><a href="#none">⅝</a></li>
+             <li><a href="#none">⅞</a></li>
+             <li><a href="#none">¹</a></li>
+             <li><a href="#none">²</a></li>
+             <li><a href="#none">³</a></li>
+             <li><a href="#none">⁴</a></li>
+             <li><a href="#none">ⁿ</a></li>
+             <li><a href="#none">₁</a></li>
+             <li><a href="#none">₂</a></li>
+             <li><a href="#none">₃</a></li>
+             <li><a href="#none">₄</a></li>
+            </ul>
+           </div><!-- //첨자기호 -->
+          </div>
+         </div>
+         <div class="layerBtnGroup clearfix">
+          <div class="btn_Dleft">
+           <input type="button" value="다시입력" title="다시입력버튼" onclick="multLang_reset();"> <input type="button" value="닫기" title="닫기버튼" onclick="langInsert_closeBtn();">
+          </div>
+         </div>
+        </div>
+       </div><!--droxbox_right 12 12--> <!--오른쪽 배경색 주기 위한 div-->
+       <div class="x">
+        <div class="close_btn">
+         <div class="stick1"></div>
+         <div class="stick2"></div>
+        </div>
+       </div>
+      </div><!--seach_droxbox_cont-->
+     </div><!--seach_droxbox--> <!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+     <script>
+$(function(){
+	$(".language_search li a").click(fnChangeLang);
+	$(".languageContents ul li a").click(fnInputMultiLang);
+});
+
+function fnChangeLang(){
+	$(".language_search li a").removeClass("selected");
+	$(".language_search li a").removeAttr("title");
+	$(this).addClass("selected");
+	$(this).attr("title","선택됨")
+	var multiLangIndex = $('.language_search li a').index($(this));
+	$('.languageContents').hide();
+	$('.languageContents').eq(multiLangIndex).show();
+	return false;
+}
+
+function fnInputMultiLang(){
+	var form = document.simpleSearchForm;
+	form.keyword1.value = form.keyword1.value + $(this).text().trim();
+	return false;
+}
+
+//다국어입력 - 다시입력
+function multLang_reset(){
+	document.simpleSearchForm.keyword1.value = "";
+}
+</script>
+    </div><!-- //다국어 입력기 --> <!-- 상세검색 -->
+    <div class="layerSearchPopup" id="detailSearch_div" style="display: none;">
+     <div class="layerSearchWrap">
+      <div class="layerContentGroup clearfix">
+       <div class="layerDesc">
+        <div class="layerTitleWrap">
+         <h2 class="layerTitle">상세검색</h2>
+         <p class="layerTitleComment">전체/제목/저자에 의한 <br>
+          검색 보다 더 상세한 조건으로<br>
+          (표준부호/발행시기) 자료를 찾을 수 있습니다.</p><a href="/kolisnet/contents/help.do" class="btn_Dhelp">도움말</a>
+        </div>
+       </div><!--layerDesc-->
+       <div class="layerContent">
+        <div class="layerSearchForm">
+         <form id="detailSearchForm" name="detailSearchForm" method="get" onsubmit="return false;">
+          <input type="hidden" name="bookFilter"> <input type="hidden" name="historyYn" value="Y"> <input type="hidden" name="tab" value="ALL">
+          <div class="field">
+           <div class="item">
+            <select class="tit" title="검색유형" id="detailKeywordType1" name="keywordType1"> <option value="total" selected>전체</option> <option value="title">제목</option> <option value="author">저자</option> <option value="keyword">주제</option> </select> <!-- <input type="text" style="ime-mode:active;" class="form-ele full" name="keyword1" title="키워드입력" id="detailKeyword1" onkeydown="if(event.keyCode==13) fnSearchDetail();"> --> <input type="text" class="form-ele full" name="keyword1" title="검색어 입력" id="detailKeyword1" onkeydown="if(event.keyCode==13) fnSearchDetail();">
+           </div>
+          </div>
+          <div class="field">
+           <div class="item operator">
+            <label for="detailKeyword2" class="tit">제목</label> <select class="form-ele fn" title="제목 검색타입" id="titleType" name="titleType"> <option value="" selected>부분일치</option> <option value="equal">완전일치</option> <option value="right">전방일치</option> </select> <!-- <input type="text" style="ime-mode:active;" class="form-ele full" name="title" title="제목 키워드입력" id="detailKeyword2" onkeydown="if(event.keyCode==13) fnSearchDetail();"> --> <input type="text" class="form-ele full" name="title" title="제목 키워드입력" id="detailKeyword2" onkeydown="if(event.keyCode==13) fnSearchDetail();">
+           </div>
+          </div>
+          <div class="field">
+           <div class="item operator">
+            <label for="detailKeyword3" class="tit">저자</label> <select class="form-ele fn" title="저자 검색타입" id="authorType" name="authorType"> <option value="" selected>부분일치</option> <option value="equal">완전일치</option> <option value="right">전방일치</option> </select> <!-- <input type="text" style="ime-mode:active;" class="form-ele full" name="author" title="저자 키워드입력" id="detailKeyword3" onkeydown="if(event.keyCode==13) fnSearchDetail();"> --> <input type="text" class="form-ele full" name="author" title="저자 키워드입력" id="detailKeyword3" onkeydown="if(event.keyCode==13) fnSearchDetail();">
+           </div>
+          </div>
+          <div class="field">
+           <div class="item operator">
+            <label for="detailKeyword4" class="tit">발행자</label> <select class="form-ele fn" title="발행자 검색타입" id="publisherType" name="publisherType"> <option value="" selected>부분일치</option> <option value="equal">완전일치</option> <option value="right">전방일치</option> </select> <!-- <input type="text" style="ime-mode:active;" class="form-ele full" name="publisher" title="발행자 키워드입력" id="detailKeyword4" onkeydown="if(event.keyCode==13) fnSearchDetail();"> --> <input type="text" class="form-ele full" name="publisher" title="발행자 키워드입력" id="detailKeyword4" onkeydown="if(event.keyCode==13) fnSearchDetail();"> <!-- 312650 / 2020.01.13 /웹접근성 및 표준성 자동진단 by.lhs / 1.(7)~(10) END <-이거뭐지? -->
+           </div>
+          </div><!-- <h2>검색제한</h2> -->
+          <div class="field">
+           <div class="item operator">
+            <label for="keywordType5" class="tit">표준부호</label> <select id="keywordType5" class="form-ele fn" title="표준부호 구분" name="keywordType5"> <option value="isbn">ISBN</option> <option value="issn">ISSN</option> </select> <input type="text" class="form-ele auto" title="표준부호검색입력" id="keyword5" name="keyword5" onkeydown="if(event.keyCode==13) fnSearchDetail();">
+           </div>
+          </div>
+          <div class="field">
+           <div class="item">
+            <!-- 20.08.18 / 김다슬 / 330847 / 웹사이트 관리, 라벨 주석 --> <!-- <label for="publishYear" id="publicYearLabel" class="tit">발행시기</label> -->
+            <div id="publishYear" class="tit">
+             발행시기
+            </div><input id="startIpubYear" name="startIpubYear" class="numeric" type="text" maxlength="4" title="상세검색 발행시기 시작년도" onkeydown="if(event.keyCode==13) fnSearchDetail();">부터 <input id="endIpubYear" name="endIpubYear" class="numeric" type="text" maxlength="4" title="상세검색 발행시기 종료년도" onkeydown="if(event.keyCode==13) fnSearchDetail();">까지
+           </div>
+          </div>
+          <div class="field">
+           <div class="item operator">
+            <label for="keywordType6" class="tit">제어번호</label> <select id="keywordType6" class="form-ele fn" title="제어번호구분" name="keywordType6"> <option value="UB">UB</option> <option value="US">US</option> <option value="UD">UD</option> <option value="UW">UW</option> </select> <input type="text" class="form-ele auto" title="제어번호검색" id="keyword6" name="keyword6" onkeydown="if(event.keyCode==13) fnSearchDetail();">
+           </div>
+          </div><!--
+							<div class="field">
+								<div class="item">
+									<span class="tit">자료유형</span>
+									<input type="checkbox" id="detailBookFilter01" class="check" name="detailBookFilter" value="BO" title="일반도서 검색 선택" checked="checked">
+									<label for="detailBookFilter01" class="check_label">일반도서</label>
+									<input type="checkbox" id="detailBookFilter02" class="check" name="detailBookFilter" value="DI" title="잡지/학술지 검색 선택" checked="checked">
+									<label for="detailBookFilter02" class="check_label">잡지/학술지</label>
+									<input type="checkbox" id="detailBookFilter03" class="check" name="detailBookFilter" value="mult_books" title="학위논문" checked="checked">
+									<label for="detailBookFilter03" class="check_label">학위논문</label>
+									<input type="checkbox" id="detailBookFilter04" class="check" name="detailBookFilter" value="extension_search" title="비도서/멀티미디어" checked="checked">
+									<label for="detailBookFilter04" class="check_label">비도서/멀티미디어</label>
+									<input type="checkbox" id="detailBookFilter05" class="check" name="detailBookFilter" value="extension_search" title="디지털신문" checked="checked">
+									<label for="detailBookFilter05" class="check_label">디지털신문</label>
+								</div>
+							</div>
+							-->
+         </form>
+        </div>
+        <div class="layerBtnGroup clearfix">
+         <input type="button" class="btnOnly btn_search" value="검색" onclick="javascript:fnSearchDetail();">
+         <div class="btn_Dleft">
+          <input type="button" class="btn_Drewrite" style="background-color: #606021;" value="다시쓰기" onclick="javascript:resetBtn();"> <input type="button" class="btn_Dhistory" style="background-color: #606021;" value="히스토리검색" onclick="javascript:historySearchBtn();"> <input type="button" class="btn_Dclose" style="background-color: #606021;" value="닫기" onclick="javascript:detailSearchClose();">
+         </div>
+        </div>
+       </div><!--layerContent-->
+       <div class="right_bg"></div>
+      </div><!--layerContentGroup-->
+     </div>
+    </div><!-- 다른기관검색 -->
+    <div class="layerSearchPopup" id="otherSearch_div" style="display: none;">
+     <div class="layerSearchWrap">
+      <div class="layerContentGroup clearfix">
+       <div class="layerDesc">
+        <h2 class="layerTitle">다른기관검색</h2>
+        <p class="layerTitleComment">국내외 주요 기관의 자료를 한번의 질의입력 및 검색으로 원하는 자료를 확인할 수 있습니다.</p>
+       </div><!--layerDesc-->
+       <div class="layerContent">
+        <div class="layerSearchForm">
+         <form id="otherSearchForm" name="otherSearchForm" method="get">
+          <input type="hidden" class="form-ele full" name="tab" value="OT"> <input type="hidden" class="form-ele full" name="subTab" value=""> <input type="hidden" name="historyYn" value="Y">
+          <div class="checkboxOther_wrap">
+           <input id="search_other02" class="check" type="checkbox" name="otherFilter" value="RISS" checked> <label for="search_other02" class="check_label">KERIS 종합목록</label> <input id="search_other03" class="check" type="checkbox" name="otherFilter" value="NANET" checked> <label for="search_other03" class="check_label">국회도서관</label>
+          </div>
+          <div class="field">
+           <div class="item">
+            <label for="keyword1" class="tit">전체</label> <input type="hidden" class="form-ele full" name="keywordType1" value="total"> <input type="text" class="form-ele full" name="keyword1" id="keyword1" title="전체 키워드 입력" onkeydown="if(event.keyCode==13) fnSearchOther();">
+           </div>
+          </div>
+          <div class="field">
+           <div class="item">
+            <label for="keyword2" class="tit">제목</label> <input type="hidden" class="form-ele full" name="keywordType2" value="title"> <input type="text" class="form-ele full" name="keyword2" id="keyword2" title="제목 입력" onkeydown="if(event.keyCode==13) fnSearchOther();">
+           </div>
+          </div>
+          <div class="field">
+           <div class="item">
+            <label for="keyword3" class="tit">저자</label> <input type="hidden" class="form-ele full" name="keywordType3" value="author"> <input type="text" class="form-ele full" name="keyword3" id="keyword3" title="저자 입력" onkeydown="if(event.keyCode==13) fnSearchOther();">
+           </div>
+          </div>
+          <div class="field">
+           <div class="item">
+            <label for="keyword4" class="tit">발행자</label> <input type="hidden" class="form-ele full" name="keywordType4" value="publisher"> <!-- 20.08.18 / 김다슬 / 330847 / 웹사이트 관리, "발행자 입력" onkeydown 사이 스페이스 추가 --> <input type="text" class="form-ele full" name="keyword4" id="keyword4" title="발행자 입력" onkeydown="if(event.keyCode==13) fnSearchOther();">
+           </div>
+          </div>
+          <div class="field">
+           <div class="item">
+            <div class="tit">
+             발행시기
+            </div><input name="startIpubYear" class="form-ele short" type="text" title="다른기관검색  발행시기 시작년도" onkeydown="if(event.keyCode==13) fnSearchOther();"> ~ <input name="endIpubYear" class="form-ele short" type="text" title="다른기관검색 발행시기 종료년도" onkeydown="if(event.keyCode==13) fnSearchOther();">
+           </div>
+          </div>
+         </form>
+        </div>
+        <div class="layerBtnGroup clearfix">
+         <input type="button" class="btnOnly btn_search" title="검색" value="검색" onclick="fnSearchOther(); return false;">
+         <div class="btn_Dleft">
+          <input type="button" class="btn_Dclose" value="닫기" title="닫기" onclick="otherSearchClose();">
+         </div>
+        </div>
+       </div><!--layerContent-->
+      </div><!--layerContentGroup-->
+     </div><!--seach_droxbox-->
+    </div><!-- 히스토리검색  -->
+   </section><!-- //검색 --> <!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+   <script>
+	var $layerBG = $("#layerBG");
+	var detailSearch = document.getElementById("detailSearch_div");
+	var	otherSearch = document.getElementById("otherSearch_div");
+	var	langSearch = document.getElementById("langSearch_div");
+	var	historySearch = document.getElementById("historySearch_div");
+
+	$(function(){
+		$("#bookFilterAll").click(function(){
+			if($(this).prop("checked")){
+				$("input[name='bookFilter']").prop("checked",true);
+			}else{
+				$("input[name='bookFilter']").prop("checked",false);
+			}
+		})
+		$layerBG.click(function(){
+			layerBgHide();
+			detailSearchClose();
+			return false;
+		});
+
+		$("#simpleKeyword1").bind("focus", function() {
+			layerBgHide();
+			$(".layerSearchPopup").hide();
+		});
+		$("#simpleKeyword1").keypress(function (e) {
+			if((e.keyCode || e.which) == 13){
+				fnSearchSimple();
+				e.preventDefault();
+			}
+		});
+		$("#simpleSearchBtn").click(fnSearchSimple);
+		if($("input[name='bookFilter']:checked").length != 6)
+		{
+			$("#bookFilterAll").prop("checked",false);
+		}
+		$("input[name='bookFilter']").click(function(){
+			if($("input[name='bookFilter']:checked").length == 6){
+				$("#bookFilterAll").prop("checked",true);
+			}else{
+				$("#bookFilterAll").prop("checked",false);
+			}
+		})
+	});
+
+	function layerBgShow(){
+		$layerBG.fadeIn(100);
+	}
+	function layerBgHide(){
+		$layerBG.fadeOut(100);
+	}
+	function layerClose(){
+		layerBgHide();
+		$(".layerSearchPopup").hide();
+	}
+	function divAllReset(id){
+		var $this = $("this");
+		layerBgShow();
+		$(".layerSearchPopup").hide();
+		$("#"+id).attr("tabindex",0).show().focus();
+	}
+	//상세검색 토글
+	function detailSearchView(){
+		var $this = $("this");
+		if (detailSearch.style.display == "none") {
+			divAllReset("detailSearch_div");
+			$("#bookFilter05").prop("checked",false);
+			$("#bookFilterAll").prop("checked",false);
+			//$("input:checkbox[id='bookFilter05']").prop("disabled",true);
+		} else {
+			//$("input:checkbox[id='bookFilter05']").prop("disabled",false);
+			layerClose();
+		}
+	}
+	//상세검색 닫기
+	function detailSearchClose(){
+		layerClose();
+		$(".btn_detail_search").unbind('click'); //click 이벤트 핸들러를 요소에서 제거
+		$("#btn_detail_search").focus();
+	}
+
+	function resetBtn(){
+		document.getElementById("detailSearchForm").reset();
+	}
+
+	//히스토리검색
+	function historySearchBtn(){
+		divAllReset("historySearch_div");
+	}
+	//히스토리검색 닫기
+	function historySearch_closeBtn(){
+		layerClose();
+	}
+
+	//다른기관검색 토글
+	function otherSearchView(){
+		if (otherSearch.style.display == "none"){
+			divAllReset("otherSearch_div");
+			//체크박스 체크
+			if($("#bookFilter05").is(':checked')==false){
+				$("#bookFilter05").prop("checked",true);
+			}
+		}else {
+			//$("#bookFilter05").prop("checked",false);
+			layerClose();
+		}
+	}
+
+	//다른기관자료 체크박스 토글
+	function otherSearch_check(){
+		if($("#bookFilter05").is(':checked')==false){
+			layerClose();
+		}else if($("#bookFilter05").is(':checked')==true){
+			divAllReset("otherSearch_div");
+		}
+	}
+
+	//다른기관검색 닫기
+	function otherSearchClose(){
+		layerClose();
+		$('.btn_another_search').unbind('click'); //click 이벤트 핸들러를 요소에서 제거
+		$("#btn_another_search").focus();
+	}
+
+	//다국어입력
+	function langInsert_Btn(){
+		var langInsert = document.getElementById("langInsert_div");
+		if (langInsert.style.display == "none") {
+			divAllReset("langInsert_div");
+			langInsert.style.display = "block";
+		}else{
+			langInsert.style.display = "none";
+		}
+	}
+
+	//다국어입력 닫기
+	function langInsert_closeBtn(){
+		layerClose();
+		simple_text = "";
+		$(".lang_btn_search").focus();
+	}
+
+	function fnSearchSimple() {
+		var form = document.simpleSearchForm;
+		if(isEmpty(form.keyword1.value)) {
+			alert("검색어를 입력하세요.")
+			form.keyword1.focus();
+			return false;
+		}
+		var Pattern = /[\`\~\!\@#$\%\^\&\*\(\)\_\+\|\=\[\]\{\}\;\:\'\"\,\.\/\<\>\\\?]/g;
+		// 312748 / 2020.01.08 by.lhs 검색결과 확인 요청 (검색어 공백수정) START
+		/* form.keyword1.value = form.keyword1.value.replace(Pattern, " "); */
+		form.keyword1.value = form.keyword1.value.replace(Pattern, " ").trim().replace(/ +/g, " ");
+		// 312748 / 2020.01.08 by.lhs 검색결과 확인 요청(검색어 공백수정) END
+		if ($("#simpleSearchForm input[name=bookFilter]:checked").length < 1) {
+			//$("#simpleSearchForm input[name=bookFilter]").prop("checked", true);
+			alert("자료유형을 선택해 주시기 바랍니다.")
+			return false;
+		}
+		if ($("#simpleSearchForm input[name=bookFilter]:checked").length == 1) {
+			form.tab.value = $("#simpleSearchForm input[name=bookFilter]:checked").val();
+			form.action ="/kolisnet/search/searchResultList.do";
+			/* 2019.12.13 by.lhs 다른기관자료 체크 검색 수정 */
+			if($("#simpleSearchForm input[name=bookFilter]:checked").val() == 'OT'){
+				form.action ="/kolisnet/search/searchResultOtherList.do";
+			}
+			/* 2019.12.13 by.lhs 다른기관자료 체크 검색 수정 */
+		} else {
+			form.action ="/kolisnet/search/searchResultAllList.do";
+		}
+		form.submit();
+	}
+
+	function fnSearchDetail() {
+		var form = document.detailSearchForm;
+		
+		/* if (isEmpty(form.keyword1.value) && isEmpty(form.title.value) && isEmpty(form.author.value) && isEmpty(form.publisher.value) && isEmpty(form.keyword5.value) && isEmpty(form.keyword6.value)) { */
+		if (isEmpty(form.keyword1.value) && isEmpty(form.title.value) && isEmpty(form.author.value) && isEmpty(form.keyword5.value) && isEmpty(form.keyword6.value) && isEmpty(form.detailKeyword4.value)) {
+			alert("검색어를 입력하세요.");
+			form.keyword1.focus();
+			return false;
+		}
+		var Pattern = /[\`\~\!\@#$\%\^\&\*\(\)\_\+\|\=\[\]\{\}\;\:\'\"\,\.\/\<\>\\\?]/g;
+		if(isNotEmpty(form.keyword1.value)) {
+			// 312748 / 2020.01.08 by.lhs 검색결과 확인 요청 (검색어 공백수정) START
+			/* form.keyword1.value = form.keyword1.value.replace(Pattern, " "); */
+			form.keyword1.value = form.keyword1.value.replace(Pattern, " ").trim().replace(/ +/g, " ");
+			// 312748 / 2020.01.08 by.lhs 검색결과 확인 요청(검색어 공백수정) END
+		}
+		if(isNotEmpty(form.title.value)) {
+			form.title.value = form.title.value.replace(Pattern, " ");
+		}
+		if(isNotEmpty(form.author.value)) {
+			form.author.value = form.author.value.replace(Pattern, " ");
+		}
+
+		
+		//유효성검사...
+		/* var keyword5 = form.keyword5.value;
+		var isbn_tar = 
+		if(isNotEmpty(keyword5)) {			
+			form.keyword.value = form.publisher.value.replace(Pattern, " ");
+		} */
+		
+		var keyword6 = form.keyword6.value;
+		if(isNotEmpty(keyword6) && keyword6.length >= 2) {
+			keyword6 = keyword6.toUpperCase();
+			if(keyword6.substring(0,2) != "UB" && keyword6.substring(0,2) != "US" && keyword6.substring(0,2) != "UD" && keyword6.substring(0,2) != "UW") {
+				keyword6 = form.keywordType6.value + keyword6;
+			}
+			form.keyword6.value = keyword6;
+		}
+		if ($("#simpleSearchForm input[name=bookFilter]:checked").length < 1) {
+			//$("#simpleSearchForm input[name=bookFilter]").prop("checked", true);
+			alert("자료유형을 선택해 주시기 바랍니다.");
+			return false;
+		}
+		if ($("#simpleSearchForm input[name=bookFilter]:checked").length == 1) {
+			form.tab.value = $("#simpleSearchForm input[name=bookFilter]:checked").val();
+			form.action ="/kolisnet/search/searchResultList.do"
+		} else {
+			form.action ="/kolisnet/search/searchResultAllList.do"
+		}
+		var bookFilter = "";
+		var checkLen = $("#simpleSearchForm input[name='bookFilter']:checked").length;
+		$("#simpleSearchForm input[name='bookFilter']:checked").each(function(index){
+		    bookFilter += this.value
+		    if(checkLen - 1 > index)
+			   bookFilter +=","
+		})
+		form.bookFilter.value = bookFilter;
+		form.submit();
+		return false;
+	}
+
+	function fnSearchDetailReset() {
+		var form = document.detailSearchForm;
+		form.reset();
+	}
+
+	function fnSearchOther() {
+		var form = document.otherSearchForm;
+
+		if (isEmpty(form.keyword1.value) && isEmpty(form.keyword2.value) && isEmpty(form.keyword3.value) && isEmpty(form.keyword4.value)) {
+			alert("검색어를 입력하세요.");
+			form.keyword1.focus();
+			return false;
+		}
+		var searchValue = "";
+		var searchDisplay = "";
+		if (isNotEmpty(form.keyword1.value)) {
+			searchDisplay += form.keyword1.value + "[" + form.keywordType1.value + "]";
+			searchValue += "keyword1=" + form.keyword1.value + "&keywordType1=" + form.keywordType1.value + "&";
+		}
+		if (isNotEmpty(form.keyword2.value)) {
+			searchDisplay += form.keyword2.value + "[" + form.keywordType2.value + "]";
+			searchValue += "keyword2=" + form.keyword2.value + "&keywordType2=" + form.keywordType2.value + "&";
+		}
+		if (isNotEmpty(form.keyword3.value)) {
+			searchDisplay += form.keyword3.value + "[" + form.keywordType3.value + "]";
+			searchValue += "keyword3=" + form.keyword3.value + "&keywordType3=" + form.keywordType3.value + "&";
+		}
+		if (isNotEmpty(form.keyword4.value)) {
+			searchDisplay += form.keyword4.value + "[" + form.keywordType4.value + "]";
+			searchValue += "keyword4=" + form.keyword4.value + "&keywordType4=" + form.keywordType4.value + "&";
+		}
+		historyStorage(searchValue, searchDisplay);
+		if ($("#otherSearchForm input[name=otherFilter]:checked").length < 1) {
+			$("#otherSearchForm input[name=otherFilter]").prop("checked", true);
+		}
+		if ($("#otherSearchForm input[name=otherFilter]:checked").length == 1) {
+			form.subTab.value=$("#otherSearchForm input[name=otherFilter]:checked").val();
+			form.action ="/kolisnet/search/searchResultOtherEachList.do";
+		} else {
+			form.action ="/kolisnet/search/searchResultOtherList.do";
+		}
+		form.submit();
+		return false;
+	}
+</script>
+   <div id="container" class="sub">
+    <!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, script type 제거 -->
+    <script>
+	function fnTabList(tab){
+		var form = document.searchParamForm;
+		form.tab.value = tab;
+		form.subTab.value = "";
+		form.facetCollType.value = "";
+		form.pageNum.value="1";
+		if(tab =="ALL") {
+			form.action = "/kolisnet/search/searchResultAllList.do";
+		} else if(tab =="OT") {
+			form.action = "/kolisnet/search/searchResultOtherList.do";
+		} else {
+			form.action = "/kolisnet/search/searchResultList.do";
+		}
+		form.submit();
+	}
+
+	function fnOtherTabList(subTab){
+		var form = document.searchParamForm;
+		form.action = "/kolisnet/search/searchResultOtherEachList.do";
+		form.subTab.value = subTab;
+		form.submit();
+	}
+</script>
+    <div class="searchResultTab">
+     <div class="tabSlider">
+      <ul class="tabList clearfix">
+       <li><a href="#tab" onclick="javascript:fnTabList('ALL');" class="current" title="현재 페이지">전체</a></li>
+       <li><span href="#tab" class="no">일반도서</span></li>
+       <li><span href="#tab" class="no">잡지/학술지</span></li>
+       <li><span href="#tab" class="no">학위논문</span></li>
+       <li><span href="#tab" class="no">멀티미디어/비도서</span></li>
+       <li><span href="#tab" class="no">디지털신문</span></li>
+       <li><span href="#tab" class="no">다른기관자료</span></li>
+      </ul>
+     </div>
+    </div>
+    <div class="contentGroup">
+     <a href="#searchFilterOpen" onclick="filterOpenBtn(); return false;" class="btnfilterOpen">검색결과제한</a>
+     <div class="searchResultFilter" id="lnbNav">
+      <h2>검색 결과 제한</h2>
+      <ul class="searchFilterList">
+       <li class="category"><strong class="tit">자료유형</strong>
+        <ul class="filterParentList">
+        </ul></li>
+       <li class="pubyear"><strong class="tit">발행시기</strong>
+        <ul class="filterChildList">
+        </ul></li>
+       <li class="subject"><strong class="tit">주제별</strong>
+        <ul class="filterChildList">
+        </ul></li>
+       <li class="langs"><strong class="tit">언어</strong>
+        <ul class="filterChildList">
+        </ul></li>
+      </ul>
+      <div class="btnGroup mobileShow">
+       <a href="#close" onclick="filterCloseBtn(); return false;" class="btn blue round">확인</a>
+      </div>
+     </div>
+     <script>
+	var $searchFilter = $(".searchResultFilter");
+	function filterOpenBtn(){
+		$searchFilter.show();
+	};
+	function filterCloseBtn(){
+		$searchFilter.hide();
+	};
+	$(function(){
+		// 탭 슬라이드
+		var $tabSlider = $(".tabSlider");
+		var $tabList = $tabSlider.find(".tabList");
+		var $tabLink = $tabList.find("a");
+		var x = 0;
+		var tabx = 0;
+		var xx = 0;
+		var limit = $tabList.width() - $tabSlider.width();
+		$tabList.bind('touchstart', function(e) {
+			var event = e.originalEvent;
+			x = event.touches[0].screenX;
+			tabx = $tabList.css("transform").replace(/[^0-9\-.,]/g, '').split(',')[4];
+		});
+		$tabList.bind('touchmove', function(e) {
+			var event = e.originalEvent;
+			xx = parseInt(tabx) + parseInt(event.touches[0].screenX - x);
+			$tabList.css("transform", "translate(" + xx + "px, 0px)");
+			event.preventDefault();
+		});
+		$tabList.bind('touchend', function(e) {
+			if ((xx > 0) && (tabx <= 0)) {
+				$tabList.css("transform", "translate(0px, 0px)");
+				$tabSlider.removeClass("last");
+				$tabSlider.addClass("first");
+			}
+			if (Math.abs(xx) > limit) {
+				$tabList.css("transform", "translate(" + -limit + "px, 0px)");
+				$tabSlider.removeClass("first");
+				$tabSlider.addClass("last");
+			}
+		});
+		$tabLink.click(function(){
+			$tabLink.removeClass("current");
+			$(this).addClass("current");
+			return false;
+		});
+
+		// 필터 목록 접기/펼치기
+		var $listMore = $(".searchFilterList .more");
+		$listMore.click(function(event){
+			var $this = $(this);
+			var $list = $this.siblings(".filterChildList");
+			if ($this.attr("href") == "#") {
+				event.preventDefault();
+			}
+			if ($list.size() > 0){
+				$list.toggleClass("selected");
+				if ($list.hasClass("selected")){
+					$this.text("close");
+					$this.attr("title","접기");
+				}else{
+					$this.text("more");
+					$this.attr("title","펼치기");
+				}
+			}
+			return false;
+		});
+	});
+
+	function fnFacetSearch(field, keyword) {
+		var form = document.searchParamForm;
+		var obj = eval("form." + field);
+		if(field == 'facetCollType') {
+			obj.value = "";
+			if(keyword == "") {
+				form.tab.value = "ALL";
+			} else {
+				var collType = keyword.split("^")[0];
+				if(collType == "ER" || collType == "MP" || collType == "MU" || collType == "CR" || collType == "VM" || collType == "MX" || collType == "ET") {
+					form.tab.value = "NK";
+					obj.value = keyword;
+				} else {
+					form.tab.value = collType;
+				}
+			}
+		} else if(isNotEmpty(obj.value) && isNotEmpty(keyword) && field != 'facetYear') {
+			if(obj.value.indexOf(keyword) != -1) {
+				return false;
+			}
+			obj.value = obj.value + "|" + keyword;
+		}else {
+			obj.value = keyword;
+		}
+
+		if(form.tab.value == "ALL") {
+			form.action = "/kolisnet/search/searchResultAllList.do";
+		} else {
+			form.action = "/kolisnet/search/searchResultList.do";
+		}
+		form.submit();
+	}
+
+	function fnFacetReset() {
+		var form = document.searchParamForm;
+		form.facetCollType.value = '';
+		form.facetYear.value = '';
+		form.facetKdc.value = '';
+		form.facetLang.value = '';
+		if(form.tab.value == "ALL") {
+			form.action = "/kolisnet/search/searchResultAllList.do";
+		} else {
+			form.action = "/kolisnet/search/searchResultList.do";
+		}
+		form.submit();
+	}
+
+	function fnFacetRemove(field, keyword) {
+		var form = document.searchParamForm;
+		var obj = eval("form." + field);
+		var oldArray  = obj.value.split("|");
+		var newArray = [];
+		for(var i = 0; i < oldArray.length; i++) {
+			if(keyword != oldArray[i]) {
+				newArray.push(oldArray[i]);
+			}
+		}
+		obj.value = newArray.join("|");
+		if(form.tab.value == "ALL") {
+			form.action = "/kolisnet/search/searchResultAllList.do";
+		} else {
+			form.action = "/kolisnet/search/searchResultList.do";
+		}
+		form.submit();
+	}
+
+</script>
+     <div id="contentcore">
+      <div id="contents" class="contentArea">
+       <!--Real Contents Start--> <!-- general 총류,philosphy 철학,religion 종교,social 사회과학,pure 자연과학,tech 기술과학,art 예술,language 어학,literature 문학,history 역사, online 학위논문 -->
+       <div class="searchResultWrap clearfix">
+        <div class="resultListGroup">
+         <div class="column left">
+          <!-- 일반도서 -->
+          <section class="resultListBox">
+           <div class="hgroup">
+            <p class="title">일반도서 <span class="result_count">결과<span>0</span>건</span></p><!-- 20.09.09 / 김다슬 / 330847 / 웹사이트 관리, title 추가 --> <!-- <a href="#btn" onclick="javascript:fnTabList('BKGM');" class="btnMore" title="일반도서 모두보기">+ 모두보기</a> -->
+           </div>
+           <ul class="resultList">
+           </ul>
+           <div class="emptyNote">
+            <p>자료가 없습니다.</p>
+           </div><a href="#btn" onclick="javascript:fnTabList('BKGM');" class="btnMore allBtnMore" title="일반도서 모두보기">+ 모두보기</a>
+          </section><!-- //일반도서 --> <!-- 학위논문 -->
+          <section class="resultListBox">
+           <div class="hgroup">
+            <p class="title">학위논문 <span class="result_count">결과<span></span>건</span></p><!-- 20.09.09 / 김다슬 / 330847 / 웹사이트 관리, title 추가 --> <!-- <a href="#btn" onclick="javascript:fnTabList('BKDM');" class="btnMore" title="학위논문 모두보기">+ 모두보기</a> -->
+           </div>
+           <ul class="resultList">
+           </ul>
+           <div class="emptyNote">
+            <p>자료가 없습니다.</p>
+           </div><a href="#btn" onclick="javascript:fnTabList('BKDM');" class="btnMore allBtnMore" title="학위논문 모두보기">+ 모두보기</a>
+          </section><!-- //학위논문 --> <!-- 디지털 신문 -->
+          <section class="resultListBox">
+           <div class="hgroup">
+            <p class="title">디지털 신문 <span class="result_count">결과<span></span>건</span></p><!-- 20.09.09 / 김다슬 / 330847 / 웹사이트 관리, title 추가 --> <!-- <a href="#btn" onclick="javascript:fnTabList('NP');" class="btnMore"  title="디지털 신문 모두보기">+ 모두보기</a> -->
+           </div>
+           <ul class="resultList">
+           </ul>
+           <div class="emptyNote">
+            <p>자료가 없습니다.</p>
+           </div><a href="#btn" onclick="javascript:fnTabList('NP');" class="btnMore allBtnMore" title="디지털 신문 모두보기">+ 모두보기</a>
+          </section><!-- //디지털 신문 --> <!-- 국회도서관 소장자료 -->
+          <section class="resultListBox">
+           <div class="hgroup">
+            <p class="title">국회도서관 소장자료 <span class="result_count">결과<span></span>건</span></p><!-- 20.09.09 / 김다슬 / 330847 / 웹사이트 관리, title 추가 --> <!-- <a href="#btn" onclick="javascript:fnOtherTabList('NANET');" class="btnMore" title="국회도서관 소장자료 모두보기">+ 모두보기</a> -->
+           </div>
+           <ul class="resultList">
+           </ul>
+           <div class="emptyNote">
+            <p>자료가 없습니다.</p>
+           </div><a href="#btn" onclick="javascript:fnOtherTabList('NANET');" class="btnMore allBtnMore" title="국회도서관 소장자료 모두보기">+ 모두보기</a>
+          </section><!-- //국회도서관 소장자료 -->
+         </div>
+         <div class="column right">
+          <!-- 연속자료 -->
+          <section class="resultListBox">
+           <div class="hgroup">
+            <p class="title">잡지/학술지 <span class="result_count">결과<span></span>건</span></p><!-- 20.09.09 / 김다슬 / 330847 / 웹사이트 관리, title 추가 --> <!-- <a href="#btn" onclick="javascript:fnTabList('YON');" class="btnMore" title="잡지/학술지 모두보기">+ 모두보기</a> -->
+           </div>
+           <ul class="resultList">
+           </ul>
+           <div class="emptyNote">
+            <p>자료가 없습니다.</p>
+           </div><a href="#btn" onclick="javascript:fnTabList('YON');" class="btnMore allBtnMore" title="잡지/학술지 모두보기">+ 모두보기</a>
+          </section><!-- //연속자료 --> <!-- 멀티미디어/비도서 -->
+          <section class="resultListBox">
+           <div class="hgroup">
+            <p class="title">멀티미디어/비도서 <span class="result_count">결과<span></span>건</span></p><!-- 20.09.09 / 김다슬 / 330847 / 웹사이트 관리, title 추가 --> <!-- <a href="#btn" onclick="javascript:fnTabList('NK');" class="btnMore" title="멀티미디어/비도서 모두보기">+ 모두보기</a> -->
+           </div>
+           <ul class="resultList">
+           </ul>
+           <div class="emptyNote">
+            <p>자료가 없습니다.</p>
+           </div><a href="#btn" onclick="javascript:fnTabList('NK');" class="btnMore allBtnMore" title="멀티미디어/비도서 모두보기">+ 모두보기</a>
+          </section><!-- //멀티미디어/비도서 --> <!-- 대학도서관 종합목록 -->
+          <section class="resultListBox">
+           <div class="hgroup">
+            <p class="title">대학도서관 종합목록 <img src="/kolisnet/include/image/common/img_riss.png" alt="RISS 통합검색"> <span class="result_count">결과<span></span>건</span></p><!-- 20.09.09 / 김다슬 / 330847 / 웹사이트 관리, title 추가 --> <!-- <a href="#btn" onclick="javascript:fnOtherTabList('RISS');" class="btnMore" title="대학도서관 종합목록 모두보기">+ 모두보기</a> -->
+           </div>
+           <ul class="resultList">
+           </ul>
+           <div class="emptyNote">
+            <p>자료가 없습니다.</p>
+           </div><a href="#btn" onclick="javascript:fnOtherTabList('RISS');" class="btnMore allBtnMore" title="대학도서관 종합목록 모두보기">+ 모두보기</a>
+          </section><!-- //대학도서관 종합목록 -->
+         </div>
+        </div>
+       </div><!-- End Of the Real Contents-->
+      </div>
+     </div>
+    </div>
+   </div>
+   <footer id="footer">
+    <div class="familySite">
+     <ul>
+      <li><a class="kolisnet_titleLogo" href="http://kolis-net.nl.go.kr/" target="_blank" title="KOLISNET 구축시스템 새창으로 이동"><img src="/kolisnet/include/image/common/symbol_06.png" alt="KOLISNET 구축시스템"></a></li>
+      <li><a href="https://librarian.nl.go.kr/LI/contents/L10101000000.do" target="_blank" title="한국서지표준 새창으로 이동"><img src="/kolisnet/include/image/common/symbol_01.png" alt="한국서지표준"></a></li>
+      <li><a href="https://books.nl.go.kr/" target="_blank" title="상호대차서비스 새창으로 이동"><img src="/kolisnet/include/image/common/symbol_05.png" alt="상호대차서비스"></a></li>
+      <li><a href="http://www.nl.go.kr/korcis/" target="_blank" class="korcisFont" title="한국고전적종합목록새창으로 이동"><img src="/kolisnet/include/image/common/symbol_02.png" alt="한국고전적종합목록"></a></li>
+      <li><a href="http://www.riss.kr/index.do" target="_blank" title="한국교육학술정보원 새창으로 이동"><img src="/kolisnet/include/image/common/symbol_03.png" alt="한국교육학술정보원"></a></li>
+      <li><a href="https://www.worldcat.org/" target="_blank" title="월드캣 새창으로 이동"><img src="/kolisnet/include/image/common/symbol_04.png" alt="월드캣"></a></li>
+      <li><a href="https://bnk.kpipa.or.kr" target="_blank" title="출판유통통합전산망 새창으로 이동"><img src="/kolisnet/include/image/common/symbol_07.png" alt="출판유통통합전산망"></a></li>
+     </ul>
+    </div>
+    <div class="footerInner clearfix">
+     <div class="logo">
+      <!-- 20.08.24 / 김다슬 / 330847 / 웹사이트 관리, alt 수정 -->
+      <div>
+       <a href="http://www.nl.go.kr" target="_blank" title="국립중앙도서관 새창으로 이동"><img src="/kolisnet/include/image/common/footer_logo.png" class="footer_logo" alt="문화체육관광부 - 국립중앙도서관 로고"></a>
+      </div>
+     </div>
+     <div class="fAdd">
+      <address>우편번호 06579 서울시 서초구 반포대로 201(반포동)<br>
+        대표전화 : 02-590-6220, 02-590-0626 팩스 : 02-590-6335</address><cite>Copyrightⓒ National Library of Korea. All rights reserved.</cite>
+      <ul class="fnb">
+       <li><a href="https://nl.go.kr/NL/contents/N70100000000.do" title="새창에서 열림" target="_blank">개인정보처리방침</a></li>
+       <li><a href="/kolisnet/etc/sitemap.do" title="사이트맵으로 이동">사이트맵</a></li>
+       <li><a href="/kolisnet/contents/service.do" title="시스템소개로 이동">시스템 소개</a></li>
+      </ul>
+      <div class="fMark">
+       <!-- 20.08.20 / 김다슬 / 330847 / 웹사이트 관리, board 삭제 --> <!-- 20.08.24 / 김다슬 / 330847 / 웹사이트 관리, TITLE 수정 --> <a href="#" onclick="javascript:window.open('/kolisnet/include/image/common/web_accessibility_mark.png','web_accessibility_mark','width=600,height=845, scrollbars=no, resizable=no'); return false" title="웹접근성 품질인증서 - 새창열림" target="_blank"><img src="/kolisnet/include/image/common/WA_AuthenticateMarc.jpg" alt="과학기술정보통신부 WEB ACCESSIBILITY 마크(웹 접근성 품질인증 마크)"></a>
+      </div>
+     </div>
+    </div>
+   </footer><iframe name="hiddenFrame" id="hiddenFrame" class="hidden" title="빈프레임"></iframe> <!-- *) 공통 분석스크립트  --> <!-- 20.08.18 / 김다슬 / 330847 / 웹사이트 관리, AceCounter 주석 --> <!-- AceCounter Log Gathering Script V.71.2010011401 --> <!-- <script language='javascript'>
+if(typeof _GUL == 'undefined'){
+var _GUL = 'weblog.nl.go.kr';var _GPT='8000'; var _SGPT='443';var _AIMG = new Image(); var _bn=navigator.appName; var _PR = location.protocol=="https:"?"https://"+_GUL+":"+_SGPT:"http://"+_GUL+":"+_GPT;if( _bn.indexOf("Netscape") > -1 || _bn=="Mozilla"){ setTimeout("_AIMG.src = _PR+'/?cookie';",1); } else{ _AIMG.src = _PR+'/?cookie'; };
+document.writeln("<scr"+"ipt language='javascript' src='/kolisnet/acecounter/acecounter_V70.js'></scr"+"ipt>");
+}
+</script> --> <!-- Global site tag (gtag.js) - Google Analytics --> <!-- 20.09.28 / 김다슬 / 333639 / 이용자사이트 검색 속도 개선, googletagmanager 주석 -->
+   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-169043363-3"></script>
+   <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-169043363-3');
+</script><!-- <noscript><img src='http://weblog.nl.go.kr:8000/?uid=31&je=n&' border=0 width=0 height=0></noscript> -->
+   <noscript>
+    <img src="http://weblog.nl.go.kr:8000/?uid=31&amp;je=n&amp;" alt="webLog" width="0" height="0">
+   </noscript><!--<script type="text/javascript" src="/kolisnet/include/js/1245_Insight_WebAnalytics.js" defer="defer"></script>--> <!-- AceCounter Log Gathering Script End1 -->
+  </div>
+  <div class="fixed_btn_wrap" style="position: fixed; opacity: 1;">
+   <a href="#logo">위로</a>
+  </div><!-- //wrap -->
+  <script>initMenu(0,0,0,0,0);</script>
+ </body>
+</html>

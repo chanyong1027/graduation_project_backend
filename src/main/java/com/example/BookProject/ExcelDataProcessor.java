@@ -1,19 +1,22 @@
 package com.example.BookProject;
 
 import com.example.BookProject.domain.Library;
+import com.example.BookProject.dto.KakaoApiResponseDto;
 import com.example.BookProject.repository.LibraryRepository;
+import com.example.BookProject.service.KakaoApiService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.text.similarity.LevenshteinDistance; // <-- Levenshtein import
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,142 +27,195 @@ import java.util.stream.Collectors;
 public class ExcelDataProcessor {
 
     private final LibraryRepository libraryRepository;
+    private final KakaoApiService kakaoApiService;
 
-    public void runDryRunDebugger(String filePath) throws IOException {
-        System.out.println("--- [최종 디버깅 Dry Run] 시작: 중복 실패 후보를 확인합니다. ---");
+    public void runRealRun(String filePath) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("debug_output.txt"))) {
+            System.out.println("--- Real Run 시작: 신규 도서관을 DB에 저장합니다. ---");
 
-        Map<String, Library> existingLibraryMap = libraryRepository.findAll().stream()
-                .collect(Collectors.toMap(
-                        library -> normalizeName(library.getLibName()) + "|" + normalizeAddress(library.getAddress()),
-                        library -> library,
-                        (existing, replacement) -> existing
-                ));
-        System.out.println("DB에서 " + existingLibraryMap.size() + "개의 기존 도서관 키를 로드했습니다.");
+            Map<String, List<Library>> existingLibrariesByAddress = libraryRepository.findAll().stream()
+                    .collect(Collectors.groupingBy(lib -> normalizeAddress(lib.getAddress())));
 
-        int duplicateCount = 0;
-        int newLibraryCandidateCount = 0;
+            System.out.println("DB에서 " + existingLibrariesByAddress.size() + "개의 고유한 주소 키를 로드했습니다.");
 
-        try (FileInputStream file = new FileInputStream(filePath);
-             Workbook workbook = new XSSFWorkbook(file)) {
+            List<Library> newLibrariesToSave = new ArrayList<>();
 
-            Sheet sheet = workbook.getSheetAt(0);
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) continue;
+            try (FileInputStream file = new FileInputStream(filePath);
+                 Workbook workbook = new XSSFWorkbook(file)) {
 
-                Cell nameCell = row.getCell(4);
-                Cell addressCell = row.getCell(7);
+                Sheet sheet = workbook.getSheetAt(0);
+                for (int i = 3; i <= sheet.getLastRowNum(); i++) {
+                    Row row = sheet.getRow(i);
+                    if (row == null) continue;
+                    Cell nameCell = row.getCell(3);
+                    Cell addressCell = row.getCell(6);
+                    Cell homePageCell = row.getCell(5);
 
-                if (nameCell != null && addressCell != null) {
-                    String libName = nameCell.getStringCellValue();
-                    String address = addressCell.getStringCellValue();
-                    String newNormalizedName = normalizeName(libName);
-                    String newNormalizedAddress = normalizeAddress(address);
+                    if (nameCell != null && addressCell != null && !nameCell.getStringCellValue().isBlank()) {
+                        String libName = nameCell.getStringCellValue();
+                        String address = addressCell.getStringCellValue();
+                        String newNormalizedName = normalizeName(libName);
+                        String newNormalizedAddress = normalizeAddress(address);
 
-                    if (newNormalizedName.isEmpty() || newNormalizedAddress.isEmpty()) continue;
+                        if (newNormalizedAddress.isEmpty()) continue;
 
-                    double bestMatchScore = 0.0;
-                    Library bestMatchLibrary = null;
+                        boolean isDuplicate = false;
+                        List<Library> candidatesInSameAddress = existingLibrariesByAddress.get(newNormalizedAddress);
 
-                    // 엑셀 도서관 하나에 대해 가장 비슷한 DB 도서관 '하나'만 찾는 로직
-                    for (Map.Entry<String, Library> entry : existingLibraryMap.entrySet()) {
-                        String[] existingKeyParts = entry.getKey().split("\\|");
-                        String existingNormalizedName = existingKeyParts[0];
-                        String existingNormalizedAddress = existingKeyParts.length > 1 ? existingKeyParts[1] : "";
-
-                        if (newNormalizedAddress.equals(existingNormalizedAddress)) {
-                            double combinedScore = calculateCombinedSimilarity(newNormalizedName, existingNormalizedName);
-                            if (combinedScore > bestMatchScore) { // 최고 점수를 계속 갱신
-                                bestMatchScore = combinedScore;
-                                bestMatchLibrary = entry.getValue();
+                        if (candidatesInSameAddress != null) {
+                            for (Library candidate : candidatesInSameAddress) {
+                                String candidateNormalizedName = normalizeName(candidate.getLibName());
+                                double score = calculateOverallSimilarity(newNormalizedName, candidateNormalizedName, address, candidate.getAddress());
+                                if (score > 0.7) { // 최종 임계값
+                                    isDuplicate = true;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    // 루프가 끝난 후, 찾은 '최고 점수'를 기준으로 판단 및 출력
-                    if (bestMatchScore > 0.90) { // 임계값 0.90
-                        duplicateCount++;
-                    } else {
-                        newLibraryCandidateCount++;
-                        if (bestMatchLibrary != null) { // 가장 비슷했던 후보가 있다면 출력
-                            System.out.println("\n[중복 실패 후보] 최종 점수: " + String.format("%.2f", bestMatchScore));
-                            System.out.println("  - [엑셀] 이름: " + libName + " (키: " + newNormalizedName + ")");
-                            System.out.println("  - [DB]   이름: " + bestMatchLibrary.getLibName() + " (키: " + normalizeName(bestMatchLibrary.getLibName()) + ")");
-                            System.out.println("  (공통 주소 키: " + newNormalizedAddress + ")");
+                        if (!isDuplicate) {
+                            String homepage = (homePageCell != null && homePageCell.getCellType() == CellType.STRING) ? homePageCell.getStringCellValue() : null;
+
+                            // --- 지오코딩 API 호출 ---
+                            String refinedAddress = refineAddressForGeocoding(address);
+                            KakaoApiResponseDto.Document coords = kakaoApiService.getCoordinates(refinedAddress);
+                            Double latitude = (coords != null) ? coords.getLatitude() : null;
+                            Double longitude = (coords != null) ? coords.getLongitude() : null;
+                            // ------------------------
+
+                            if (latitude == null || longitude == null) {
+                                System.out.println("[좌표 변환 실패] " + libName + " / " + address);
+                                continue; // 좌표가 없으면 저장하지 않음
+                            }
+
+                            Library newLibrary = Library.builder()
+                                    .libName(libName)
+                                    .address(address)
+                                    .homepage(homepage)
+                                    .latitude(latitude)
+                                    .longitude(longitude)
+                                    .build();
+                            newLibrariesToSave.add(newLibrary);
                         }
                     }
                 }
             }
+
+            if (!newLibrariesToSave.isEmpty()) {
+                libraryRepository.saveAll(newLibrariesToSave);
+            }
+
+            System.out.println("\n--- Real Run 종료 ---");
+            System.out.println(">>> DB에 새로 저장된 도서관 개수: " + newLibrariesToSave.size() + "개");
         }
-        System.out.println("\n--- 디버깅 Dry Run 종료 ---");
-        System.out.println(">>> 중복으로 판단된 도서관 개수: " + duplicateCount + "개");
-        System.out.println(">>> 신규 도서관으로 추정되는 개수: " + newLibraryCandidateCount + "개");
     }
 
     /**
-     * Jaro-Winkler와 Levenshtein 점수를 조합하여 최종 유사도 점수를 계산합니다.
+     * [최종 개선] '도로명주소'가 일치하면 매우 높은 점수를 반환하는 로직 추가
      */
-    private double calculateCombinedSimilarity(String str1, String str2) {
-        // 1. Jaro-Winkler 점수 (오타, 순서에 강함)
-        double jaroScore = new JaroWinklerSimilarity().apply(str1, str2);
+    private double calculateOverallSimilarity(String name1, String name2, String fullAddress1, String fullAddress2) {
+        // 1. 각 주소에서 '도로명주소 키'를 추출합니다.
+        String streetKey1 = extractStreetAddressKey(fullAddress1);
+        String streetKey2 = extractStreetAddressKey(fullAddress2);
 
-        // 2. Levenshtein 점수 (글자 수 차이에 민감)
+        // 2. 두 키가 존재하고, 서로 완벽히 일치하면 0.95점 부여
+        if (!streetKey1.isEmpty() && streetKey1.equals(streetKey2)) {
+            return 0.95;
+        }
+
+        // 3. 일치하지 않으면 이전의 가중 평균 방식 사용
+        double nameScore = calculateCombinedSimilarity(name1, name2);
+        double addressScore = calculateCombinedSimilarity(normalizeForSimilarity(fullAddress1), normalizeForSimilarity(fullAddress2));
+        return (nameScore * 0.3) + (addressScore * 0.7);
+    }
+
+    /**
+     * [새로운 헬퍼] 정규표현식을 사용하여 주소에서 '도로명 + 건물번호' 패턴을 추출합니다.
+     */
+    private String extractStreetAddressKey(String fullAddress) {
+        if (fullAddress == null || fullAddress.isBlank()) return "";
+
+        // 예: '노해로69길 151', '사직로9길 15-14' 같은 패턴을 찾음
+        String regex = "([가-힣0-9]+(로|길|대로))\\s*([0-9-]+)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(fullAddress);
+
+        if (matcher.find()) {
+            // group(1) = 도로명, group(3) = 건물번호
+            String streetName = matcher.group(1);
+            String streetNumber = matcher.group(3);
+            return (streetName + streetNumber).replaceAll("[^가-힣a-zA-Z0-9]", "");
+        }
+
+        return ""; // 패턴을 찾지 못하면 빈 문자열 반환
+    }
+
+    /**
+     * [새로운 헬퍼] 주소의 앞 4 어절(시/도, 시/군/구, 도로명, 건물번호)을 추출하여 핵심 키 생성
+     */
+  /*  private String getCoreAddress(String fullAddress) {
+        if (fullAddress == null || fullAddress.isBlank()) return "";
+        String addressWithoutParentheses = fullAddress.replaceAll("\\(.*?\\)", "").trim();
+        String[] parts = addressWithoutParentheses.split(" ");
+        if (parts.length >= 4) {
+            return (parts[0] + parts[1] + parts[2] + parts[3]).replaceAll("[^가-힣a-zA-Z0-9]", "");
+        }
+        return ""; // 4 어절이 안되면 비교에 사용하지 않음
+    }*/
+
+    // 유사도 비교를 위해 주소에서 공백과 특수문자만 제거하는 간단한 정규화
+    private String normalizeForSimilarity(String text) {
+        if (text == null || text.isBlank()) return "";
+        return text.replaceAll("[^가-힣a-zA-Z0-9]", "");
+    }
+
+    private double calculateCombinedSimilarity(String str1, String str2) {
+        double jaroScore = new JaroWinklerSimilarity().apply(str1, str2);
         int maxLength = Math.max(str1.length(), str2.length());
         if (maxLength == 0) return 1.0;
         int levenshteinDistance = new LevenshteinDistance().apply(str1, str2);
         double levenshteinSimilarity = 1.0 - (double) levenshteinDistance / maxLength;
-
-        // 3. 두 점수의 평균을 최종 점수로 사용 (가중치 조절 가능)
-        return (jaroScore + levenshteinSimilarity) / 2.0;
+        return (jaroScore * 0.4) + (levenshteinSimilarity * 0.6);
     }
 
-    /**
-     * [개선된 버전] 이름의 고유성을 살리기 위해 지역명은 제거하지 않습니다.
-     */
     private String normalizeName(String name) {
-        if (name == null || name.isBlank()) {
-            return "";
-        }
+        if (name == null || name.isBlank()) return "";
         return name.trim()
-                .replaceAll("\\(.*?\\)", "") // 괄호와 그 안의 내용 제거
-                .replaceAll("도서관|자료실|정보관|분관|본관|작은|시립|구립|군립|국립|도립", "") // 일반적인 단어만 제거
-                .replaceAll("[^가-힣a-zA-Z0-9]", ""); // 특수문자/공백 제거
+                .replaceAll("\\(.*?\\)", "")
+                .replaceAll("(도서관|자료실|정보관|분관|본관|문고|북카페)$", "")
+                .replaceAll("[^가-힣a-zA-Z0-9]", "");
     }
-    /**
-     * [개선된 버전] 주소에서 '읍/면/동'까지 추출하여 더 상세한 키를 만듭니다.
-     */
+
     private String normalizeAddress(String fullAddress) {
-        if (fullAddress == null || fullAddress.isBlank()) {
-            return "";
-        }
+        if (fullAddress == null || fullAddress.isBlank()) return "";
         String trimmedAddress = fullAddress.trim();
-
-        if (trimmedAddress.startsWith("세종특별자치시")) {
-            return "세종특별자치시"; // 세종시는 예외 처리
-        }
-
-        // '시/도', '시/군/구', '읍/면/동'을 추출하는 정규표현식
-        String regex = "([가-힣]+(특별시|광역시|특별자치시|도|특별자치도))?" + // 시/도 (선택)
-                "\\s*([가-힣]+(시|군|구))" +                  // 시/군/구 (필수)
-                "(\\s*[가-힣]+(읍|면|동))?";                 // 읍/면/동 (선택)
-
+        if (trimmedAddress.startsWith("세종특별자치시")) return "세종특별자치시";
+        String regex = "([가-힣]+(특별시|광역시|특별자치시|도|특별자치도))?\\s*([가-힣]+(시|군|구))(\\s*[가-힣]+(읍|면|동))?";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(trimmedAddress);
-
         StringBuilder coreAddress = new StringBuilder();
         if (matcher.find()) {
-            if (matcher.group(1) != null) coreAddress.append(matcher.group(1)); // 시/도
-            if (matcher.group(3) != null) coreAddress.append(matcher.group(3)); // 시/군/구
-            if (matcher.group(5) != null) coreAddress.append(matcher.group(5)); // 읍/면/동
+            if (matcher.group(1) != null) coreAddress.append(matcher.group(1));
+            if (matcher.group(3) != null) coreAddress.append(matcher.group(3));
+            if (matcher.group(5) != null) coreAddress.append(matcher.group(5));
         }
-
         if (coreAddress.isEmpty()) {
-            // 정규식 실패 시 대체 로직
             String[] parts = trimmedAddress.split(" ");
             if (parts.length >= 2) return (parts[0] + parts[1]).replaceAll("[^가-힣a-zA-Z0-9]", "");
             return trimmedAddress.replaceAll("[^가-힣a-zA-Z0-9]", "");
         }
         return coreAddress.toString().replaceAll("[^가-힣a-zA-Z0-9]", "");
     }
-}
 
+    /**
+     * 지오코딩 API가 주소를 더 잘 인식하도록 불필요한 부분을 제거합니다.
+     */
+    private String refineAddressForGeocoding(String address) {
+        if (address == null) return null;
+        // 괄호와 그 안의 내용 제거
+        String refined = address.replaceAll("\\(.*?\\)", "");
+        // ' 내', ' 일대' 등 부가 설명 제거
+        refined = refined.replaceAll("\\s+내$|\\s+일대$|\\s+주민센타", "");
+        return refined.trim();
+    }
+}

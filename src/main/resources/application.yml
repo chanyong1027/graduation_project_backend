@@ -28,3 +28,4 @@ external:
   api:
     aladin: ${ALADIN_API_KEY}      # 👈 환경 변수로 변경
     data4library: ${DATA4LIBRARY_API_KEY} # 👈 환경 변수로 변경
+    kakao: ${KAKAO_API_KEY}
