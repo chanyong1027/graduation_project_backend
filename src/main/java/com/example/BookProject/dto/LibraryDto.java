@@ -47,6 +47,15 @@ public class LibraryDto {
             this.hasBook = hasBook;
             this.loanAvailable = loanAvailable;
         }
+
+        // boolean 타입은 Lombok의 @Getter가 get...이 아닌 is...로 생성할 수 있어 명시적으로 추가
+        public Boolean isHasBook() {
+            return hasBook;
+        }
+
+        public Boolean isLoanAvailable() {
+            return loanAvailable;
+        }
     }
 
     //--- 아래부터는 외부 API의 JSON 응답을 Java 객체로 매핑하기 위한 클래스들 ---//

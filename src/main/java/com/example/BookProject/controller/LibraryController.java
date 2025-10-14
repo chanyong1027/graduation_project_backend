@@ -1,5 +1,6 @@
 package com.example.BookProject.controller;
 
+import com.example.BookProject.dto.LibraryBookStatusDto;
 import com.example.BookProject.dto.LibraryDto;
 import com.example.BookProject.service.LibraryService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,42 @@ public class LibraryController {
 
         LibraryDto.AvailabilityResponse availability = libraryService.checkBookAvailability(d4lLibCode, isbn);
         return ResponseEntity.ok(availability);
+    }
+
+    @GetMapping("/all-from-api")
+    public ResponseEntity<String> getAllLibrariesFromApi(@RequestParam("pageNo") int pageNo, @RequestParam("pageSize") int pageSize) {
+        String result = libraryService.getAllLibrariesFromApi(pageNo, pageSize);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/book-holding")
+    public ResponseEntity<String> getBookHoldingLibrariesFromApi(
+            @RequestParam("isbn") String isbn,
+            @RequestParam("region") String region,
+            @RequestParam("pageNo") int pageNo,
+            @RequestParam("pageSize") int pageSize) {
+        String result = libraryService.getBookHoldingLibrariesFromApi(isbn, region, pageNo, pageSize);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/search-from-api")
+    public ResponseEntity<Object> searchLibrariesFromApi(
+            @RequestParam("region") String region,
+            @RequestParam("dtl_region") String dtl_region,
+            @RequestParam("pageNo") int pageNo,
+            @RequestParam("pageSize") int pageSize) throws com.fasterxml.jackson.core.JsonProcessingException {
+        String result = libraryService.searchLibrariesFromApi(region, dtl_region, pageNo, pageSize);
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        Object json = mapper.readValue(result, Object.class);
+        return ResponseEntity.ok(json);
+    }
+
+    @GetMapping("/book-status")
+    public ResponseEntity<List<LibraryBookStatusDto>> getLibraryBookStatuses(
+            @RequestParam("isbn") String isbn,
+            @RequestParam("region") String region) {
+        List<LibraryBookStatusDto> result = libraryService.getLibraryBookStatuses(isbn, region);
+        return ResponseEntity.ok(result);
     }
 
     // --- '내 도서관' 관련 API (API 명세서 기반) ---

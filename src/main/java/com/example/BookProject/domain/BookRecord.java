@@ -2,6 +2,7 @@ package com.example.BookProject.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Table(name = "book_record")
 public class BookRecord {
 
@@ -31,6 +33,11 @@ public class BookRecord {
 
     @Column(name = "end_date")
     private LocalDate endDate;
+
+    @Column(columnDefinition = "TEXT") // 긴 글을 위한 TEXT 타입
+    private String review;
+
+    private Integer rating; // 0~5점
 
     @CreationTimestamp // 엔티티가 처음 생성될 때 시간 자동 저장
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -69,5 +76,10 @@ public class BookRecord {
             }
             this.endDate = LocalDate.now();
         }
+    }
+
+    public void updateReviewAndRating(String review, Integer rating) {
+        this.review = review;
+        this.rating = rating;
     }
 }

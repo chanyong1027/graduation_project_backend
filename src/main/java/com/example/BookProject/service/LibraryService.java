@@ -3,20 +3,28 @@ package com.example.BookProject.service;
 import com.example.BookProject.domain.Library;
 import com.example.BookProject.domain.User;
 import com.example.BookProject.domain.UserLibrary;
+import com.example.BookProject.dto.AladinDto;
+import com.example.BookProject.dto.LibraryBookStatusDto;
 import com.example.BookProject.dto.LibraryDto;
 import com.example.BookProject.repository.LibraryRepository;
 import com.example.BookProject.repository.UserLibraryRepository;
 import com.example.BookProject.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LibraryService {
@@ -168,12 +176,92 @@ public class LibraryService {
         }
     }
 
+    private String callData4LibraryApi(URI uri) {
+        try {
+            return restTemplate.getForObject(uri, String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"response\":{}}"; // 에러 발생 시 빈 응답 반환
+        }
+    }
+
+    public String getAllLibrariesFromApi(int pageNo, int pageSize) {
+        String url = "http://data4library.kr/api/libSrch?authKey=" + DATA4L_API_KEY +
+                "&pageNo=" + pageNo + "&pageSize=" + pageSize + "&format=json";
+        return callData4LibraryApi(URI.create(url));
+    }
+
+    public String getBookHoldingLibrariesFromApi(String isbn, String region, int pageNo, int pageSize) {
+        String url = "http://data4library.kr/api/libSrchByBook?authKey=" + DATA4L_API_KEY +
+                "&isbn=" + isbn + "&region=" + region + "&pageNo=" + pageNo + "&pageSize=" + pageSize + "&format=json";
+        return callData4LibraryApi(URI.create(url));
+    }
+
+    public String searchLibrariesFromApi(String region, String dtl_region, int pageNo, int pageSize) {
+        String url = "http://data4library.kr/api/libSrch?authKey=" + DATA4L_API_KEY +
+                "&region=" + region + "&dtl_region=" + dtl_region + "&pageNo=" + pageNo + "&pageSize=" + pageSize + "&format=json";
+        return callData4LibraryApi(URI.create(url));
+    }
+
+    @Transactional(readOnly = true)
+    public List<LibraryBookStatusDto> getLibraryBookStatuses(String isbn, String region) {
+        log.info("--- 도서관 책 상태 조회 시작 --- isbn: {}, region: {}", isbn, region);
+
+        // 1. 외부 API를 통해 해당 지역에서 책을 소장한 도서관 목록을 가져옵니다.
+        String bookHoldingResponse = getBookHoldingLibrariesFromApi(isbn, region, 1, 200); // 최대 200개까지 조회
+        log.info("소장 도서관 API 응답: {}", bookHoldingResponse);
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            LibraryDto.Data4LibResponse data4LibResponse = mapper.readValue(bookHoldingResponse, LibraryDto.Data4LibResponse.class);
+
+            if (data4LibResponse == null || data4LibResponse.getResponse() == null || data4LibResponse.getResponse().getLibs() == null) {
+                log.warn("소장 도서관 정보 없음. API 응답이 비어있거나 형식이 다릅니다.");
+                return Collections.emptyList();
+            }
+
+            List<LibraryDto.Data4LibResponse.Lib> foundLibs = data4LibResponse.getResponse().getLibs();
+            log.info("총 {}개의 소장 도서관을 찾음.", foundLibs.size());
+
+            // 2. 각 도서관에 대해 대출 가능 여부 조회 및 DB 정보와 결합
+            return foundLibs.parallelStream() // 병렬 스트림으로 성능 향상
+                    .map(libInfo -> {
+                        Long d4lLibCode = null;
+                        try {
+                            d4lLibCode = libInfo.getLib().getLibCode();
+                            log.info("도서관 처리 중... libCode: {}", d4lLibCode);
+
+                            // 3. DB에서 도서관 정보(좌표 포함) 조회
+                            Optional<Library> libraryOpt = libraryRepository.findByD4lLibCode(d4lLibCode);
+                            if (libraryOpt.isEmpty()) {
+                                log.warn("DB에 해당 도서관 정보가 없습니다. libCode: {}", d4lLibCode);
+                                return null; // DB에 없는 도서관은 건너뜀
+                            }
+                            Library library = libraryOpt.get();
+
+                            // 4. 외부 API를 통해 대출 가능 여부 실시간 조회
+                            LibraryDto.AvailabilityResponse availability = checkBookAvailability(d4lLibCode, isbn);
+
+                            // 5. 최종 DTO로 조립
+                            return new LibraryBookStatusDto(library, availability.isHasBook(), availability.isLoanAvailable());
+
+                        } catch (Exception e) {
+                            log.error("도서관 상태 정보 처리 중 오류 발생. libCode: {}, isbn: {}", d4lLibCode, isbn, e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            log.error("책 소장 도서관 API 응답 파싱 중 오류 발생", e);
+            return Collections.emptyList();
+        }
+    }
+
     /**
      * 내 도서관으로 추가 (즐겨찾기)
      */
-    // com/example/BookProject/service/LibraryService.java
-
-// ... (다른 코드)
     /**
      * 내 도서관으로 추가 (즐겨찾기)
      */

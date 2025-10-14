@@ -3,11 +3,14 @@ package com.example.BookProject.service;
 import com.example.BookProject.dto.AladinDto;
 import com.example.BookProject.domain.Book;
 import com.example.BookProject.dto.BookDto;
+import com.example.BookProject.dto.PaginatedBookSearchResponseDto;
 import com.example.BookProject.repository.BookRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -120,13 +123,13 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookDto.BookSearchResponse> searchBooks(String query){
-        URI uri = UriComponentsBuilder.fromUriString(ALADIN_API_URL)
+    public PaginatedBookSearchResponseDto searchBooks(String query, int page, int size){
+        URI uri = UriComponentsBuilder.fromUriString("http://www.aladin.co.kr/ttb/api/ItemSearch.aspx")
                 .queryParam("ttbkey", TTB_KEY)
                 .queryParam("Query", query)
                 .queryParam("QueryType", "Keyword")
-                .queryParam("MaxResults", 10)
-                .queryParam("start", 1)
+                .queryParam("MaxResults", size)
+                .queryParam("start", page)
                 .queryParam("SearchTarget", "Book")
                 .queryParam("output", "js")
                 .queryParam("Version", "20131101")
@@ -134,15 +137,23 @@ public class BookService {
                 .build()
                 .toUri();
 
-        AladinDto.AladinResponse response = restTemplate.getForObject(uri, AladinDto.AladinResponse.class);
+        // Aladin API는 응답 필드가 유동적이므로, String으로 받은 후 ObjectMapper로 파싱하는 것이 안정적입니다.
+        try {
+            String jsonString = restTemplate.getForObject(uri, String.class);
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            AladinDto.AladinResponse response = mapper.readValue(jsonString, AladinDto.AladinResponse.class);
 
-        if(response != null && response.getItem() != null){
-            return response.getItem().stream()
-                    .map(BookDto.BookSearchResponse::new) // AladinDto.Item을 BookDto.BookSearchResponse로 변환
-                    .collect(Collectors.toList());
+            if(response != null && response.getItem() != null){
+                List<BookDto.BookSearchResponse> books = response.getItem().stream()
+                        .map(BookDto.BookSearchResponse::new)
+                        .collect(Collectors.toList());
+                return new PaginatedBookSearchResponseDto(response.getTotalResults(), books);
+            }
+        } catch (Exception e) {
+            log.error("Aladin API search parsing error", e);
         }
 
-        return List.of();
+        return new PaginatedBookSearchResponseDto(0, List.of());
     }
 
     @Transactional
@@ -216,6 +227,102 @@ public class BookService {
             }
         }
         log.info("베스트셀러 목록 업데이트를 완료했습니다.");
+    }
+    @Transactional(readOnly = true)
+    public List<BookDto.BookSearchResponse> getBestsellers() {
+        log.info("알라딘 API를 통해 베스트셀러 목록을 조회합니다.");
+        URI uri = UriComponentsBuilder.fromUriString("http://www.aladin.co.kr/ttb/api/ItemList.aspx")
+                .queryParam("ttbkey", TTB_KEY)
+                .queryParam("QueryType", "Bestseller")
+                .queryParam("MaxResults", 20)
+                .queryParam("start", 1)
+                .queryParam("SearchTarget", "Book")
+                .queryParam("output", "js")
+                .queryParam("Version", "20131101")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        AladinDto.AladinResponse response = restTemplate.getForObject(uri, AladinDto.AladinResponse.class);
+
+        if (response != null && response.getItem() != null) {
+            return response.getItem().stream()
+                    .map(BookDto.BookSearchResponse::new)
+                    .collect(Collectors.toList());
+        }
+        return List.of();
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookDto.BookSearchResponse> getNewReleases() {
+        log.info("알라딘 API를 통해 신간 목록을 조회합니다.");
+        URI uri = UriComponentsBuilder.fromUriString("http://www.aladin.co.kr/ttb/api/ItemList.aspx")
+                .queryParam("ttbkey", TTB_KEY)
+                .queryParam("QueryType", "ItemNewAll")
+                .queryParam("MaxResults", 20)
+                .queryParam("start", 1)
+                .queryParam("SearchTarget", "Book")
+                .queryParam("output", "js")
+                .queryParam("Version", "20131101")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(uri, String.class);
+            log.info("Aladin API New Releases Response: {}", responseEntity.getBody());
+
+            ObjectMapper mapper = new ObjectMapper();
+            AladinDto.AladinResponse response = mapper.readValue(responseEntity.getBody(), AladinDto.AladinResponse.class);
+
+            if (response != null && response.getItem() != null) {
+                return response.getItem().stream()
+                        .map(BookDto.BookSearchResponse::new)
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            log.error("Aladin API New Releases parsing error", e);
+        }
+
+        return List.of();
+    }
+    @Transactional(readOnly = true)
+    public BookDto.BookSearchResponse getBookDetailByIsbn(String isbn) {
+        String itemIdType = isbn.length() == 13 ? "ISBN13" : "ISBN";
+
+        URI uri = UriComponentsBuilder.fromUriString("http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx")
+                .queryParam("ttbkey", TTB_KEY)
+                .queryParam("itemId", isbn)
+                .queryParam("itemIdType", itemIdType)
+                .queryParam("output", "js")
+                .queryParam("Version", "20131101")
+                .queryParam("Cover", "Big")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        // 디버깅을 위해 실제 요청 URI 로그 추가
+        log.info("Aladin API Request URL: {}", uri);
+
+        try {
+            // getForObject 대신 getForEntity를 사용하여 전체 응답(상태 코드, 헤더, 본문)을 받음
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(uri, String.class);
+
+            // 원본 응답 본문 로그 추가
+            log.info("Aladin API Response Body: {}", responseEntity.getBody());
+
+            // ObjectMapper를 사용하여 수동으로 DTO 파싱
+            ObjectMapper objectMapper = new ObjectMapper();
+            AladinDto.AladinResponse response = objectMapper.readValue(responseEntity.getBody(), AladinDto.AladinResponse.class);
+
+            if (response != null && response.getItem() != null && !response.getItem().isEmpty()) {
+                return new BookDto.BookSearchResponse(response.getItem().get(0));
+            }
+        } catch (Exception e) {
+            log.error("Aladin API 호출 또는 파싱 중 오류 발생", e);
+        }
+
+        return null;
     }
 
 }

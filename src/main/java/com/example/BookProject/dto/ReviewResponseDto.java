@@ -19,7 +19,7 @@ public class ReviewResponseDto {
         this.content = review.getReviewContent();
         this.reviewImg = review.getReviewImg();
         this.rating = review.getRating();
-        this.authorNickname = review.getUser().getUserNm(); // 예시: User 엔티티에 getNickname()이 있다고 가정
+        this.authorNickname = review.getUser().getUsername(); // 예시: User 엔티티에 getNickname()이 있다고 가정
         this.bookId = review.getBook().getId();
         this.createdAt = review.getCreatedAt();
     }

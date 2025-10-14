@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface BookRecordRepository extends JpaRepository<BookRecord, Long> {
     List<BookRecord> findByUserId(Long userId);
-    Optional<BookRecord> findByUserAndBookId(User user, Long BookId);
+    List<BookRecord> findByUserIdAndReadStatus(Long userId, com.example.BookProject.domain.ReadStatus readStatus);
+    Optional<BookRecord> findByUserIdAndBook_Isbn(Long userId, String isbn);
 }

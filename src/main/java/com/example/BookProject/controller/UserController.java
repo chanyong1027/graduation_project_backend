@@ -12,7 +12,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/users")
@@ -30,22 +32,32 @@ public class UserController {
         return ResponseEntity.created(URI.create("api/users/" + response.getUserId())).body(response);
     }
 
-    // 로그인 (JWT 토큰 발급은 아직 미구현)
     @PostMapping("/login")
     public ResponseEntity<UserDto.LoginResponse> login(@RequestBody UserDto.LoginRequest request) {
         // AuthenticationManager를 사용하여 사용자 인증 시도
-        // CustomUserDetailsService의 loadUserByUsername이 호출되어 사용자 정보 로드 및 비밀번호 비교
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUserEmail(), request.getUserPw())
         );
 
-        // 인증 성공 후 JWT 토큰 생성
-        String jwtToken = jwtTokenProvider.createToken(authentication);
-
-        // 인증 성공 시 SecurityContextHolder에 인증 객체 저장 (선택 사항, JWT 사용 시 주로 토큰 발급)
+        // 인증 성공 후 SecurityContextHolder에 인증 객체 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return ResponseEntity.ok(new UserDto.LoginResponse(jwtToken));
+        // 인증된 사용자 정보 가져오기
+        String userEmail = authentication.getName();
+        UserDto.UserResponse userResponse = userService.findUserByEmail(userEmail);
+
+        // JWT 토큰 생성
+        String jwtToken = jwtTokenProvider.createToken(authentication);
+
+        // 풍부한 정보를 담은 응답 생성
+        UserDto.LoginResponse loginResponse = new UserDto.LoginResponse(
+                jwtToken,
+                userResponse.getUserId(),
+                userResponse.getUserNm(),
+                userResponse.getUserEmail()
+        );
+
+        return ResponseEntity.ok(loginResponse);
     }
 
     // R: 모든 회원 조회
@@ -74,5 +86,18 @@ public class UserController {
     public ResponseEntity<UserDto.UserResponse> deleteUser(@PathVariable("id") Long userId){
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 중복 확인 API 추가
+    @GetMapping("/check-email")
+    public ResponseEntity<Map<String, Boolean>> checkEmail(@RequestParam("email") String email) {
+        boolean exists = userService.checkEmailExists(email);
+        return ResponseEntity.ok(Collections.singletonMap("exists", exists));
+    }
+
+    @GetMapping("/check-username")
+    public ResponseEntity<Map<String, Boolean>> checkUserName(@RequestParam("username") String username) {
+        boolean exists = userService.checkUserNmExists(username);
+        return ResponseEntity.ok(Collections.singletonMap("exists", exists));
     }
 }

@@ -14,15 +14,17 @@ public class BookRecordResponseDto {
     private final ReadStatus readStatus;
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final Long bookId;
-    private final String bookTitle;
+    private final String review;
+    private final Integer rating;
+    private final BookDto.BookResponse book; // 책의 전체 정보를 담도록 변경
 
     public BookRecordResponseDto(BookRecord record) {
         this.id = record.getId();
         this.readStatus = record.getReadStatus();
         this.startDate = record.getStartDate();
         this.endDate = record.getEndDate();
-        this.bookId = record.getBook().getId();
-        this.bookTitle = record.getBook().getTitle(); // Book 엔티티에 getTitle()이 있다고 가정
+        this.review = record.getReview();
+        this.rating = record.getRating();
+        this.book = new BookDto.BookResponse(record.getBook()); // BookResponse DTO 사용
     }
 }

@@ -43,7 +43,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/api/users/register", "/api/users/login", "/api/libraries/**", "/api/books/**").permitAll()
+                        .requestMatchers("/api/libraries/my-library", "/api/libraries/*/my-library").authenticated()
+                        .requestMatchers("/", "/api/users/register", "/api/users/login", "/api/users/check-email", "/api/users/check-username", "/api/libraries/search-from-api", "/api/libraries/book-status", "/api/books/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가

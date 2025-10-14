@@ -19,6 +19,7 @@ import java.util.List;
 public class BookRecordController {
 
     private final BookRecordService bookRecordService;
+    private final com.example.BookProject.repository.UserRepository userRepository; // UserRepository 주입
 
     // 현재 인증된 사용자 ID를 가져오는 헬퍼 메서드
     private Long getCurrentUserId() {
@@ -26,11 +27,9 @@ public class BookRecordController {
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
             throw new IllegalStateException("인증된 사용자를 찾을 수 없습니다.");
         }
-        // UserDetails 구현체에서 User 엔티티의 userId를 얻는 방법
-        // UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        // 실제 User 객체를 반환하는 CustomUserDetailsService를 구현했다면 캐스팅하여 userId를 얻을 수 있습니다.
-        // 현재 User 엔티티가 UserDetails를 구현했으므로, 아래처럼 바로 캐스팅 가능.
-        com.example.BookProject.domain.User currentUser = (com.example.BookProject.domain.User) authentication.getPrincipal();
+        String userEmail = authentication.getName();
+        com.example.BookProject.domain.User currentUser = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("인증된 사용자를 찾을 수 없습니다: " + userEmail));
         return currentUser.getId();
     }
 
@@ -42,21 +41,26 @@ public class BookRecordController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-    // 2. 내 서재의 모든 책 조회
+    // 2. 내 서재의 모든 책 조회 (상태별 필터링 가능)
     @GetMapping("/my")
-    public ResponseEntity<List<BookRecordResponseDto>> getMyRecords() {
-        Long currentUserId = getCurrentUserId(); // Spring Security 등으로 현재 사용자 ID를 가져와야 함
-        List<BookRecordResponseDto> records = bookRecordService.findMyBookRecords(currentUserId);
+    public ResponseEntity<List<BookRecordResponseDto>> getMyRecords(@RequestParam(value = "status", required = false) com.example.BookProject.domain.ReadStatus status) {
+        Long currentUserId = getCurrentUserId();
+        List<BookRecordResponseDto> records = bookRecordService.findMyBookRecords(currentUserId, status);
         return ResponseEntity.ok(records);
     }
 
     // 3. 특정 기록 단건 조회
     @GetMapping("/{recordId}")
     public ResponseEntity<BookRecordResponseDto> getRecordById(@PathVariable("recordId") Long recordId) {
-        // 이 API는 recordId만으로 조회하므로, 특정 사용자 검증 로직이 추가될 수 있습니다.
-        // 예를 들어, 해당 recordId가 현재 사용자의 것인지 확인하는 로직 등
         Long currentUserId = getCurrentUserId();
         BookRecordResponseDto record = bookRecordService.findBookRecordById(recordId, currentUserId);
+        return ResponseEntity.ok(record);
+    }
+
+    @GetMapping("/book/{isbn}")
+    public ResponseEntity<BookRecordResponseDto> getMyRecordForBook(@PathVariable("isbn") String isbn) {
+        Long currentUserId = getCurrentUserId();
+        BookRecordResponseDto record = bookRecordService.findMyRecordForBook(currentUserId, isbn);
         return ResponseEntity.ok(record);
     }
 
@@ -70,7 +74,17 @@ public class BookRecordController {
         return ResponseEntity.ok(updatedRecord);
     }
 
-    // 5. 서재에서 책 삭제
+    // 5. 후기 및 평점 수정
+    @PutMapping("/{recordId}/review")
+    public ResponseEntity<BookRecordResponseDto> updateReviewAndRating(
+            @PathVariable("recordId") Long recordId,
+            @RequestBody com.example.BookProject.dto.ReviewUpdateRequestDto requestDto) {
+        Long currentUserId = getCurrentUserId();
+        BookRecordResponseDto updatedRecord = bookRecordService.updateReviewAndRating(recordId, requestDto, currentUserId);
+        return ResponseEntity.ok(updatedRecord);
+    }
+
+    // 6. 서재에서 책 삭제
     @DeleteMapping("/{recordId}")
     public ResponseEntity<Void> deleteRecord(@PathVariable("recordId") Long recordId) {
         // 삭제하려는 기록이 현재 사용자의 것인지 확인하는 로직 추가 필요 (보안 강화)

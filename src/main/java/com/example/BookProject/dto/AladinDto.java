@@ -14,6 +14,7 @@ public class AladinDto {
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AladinResponse {
+        private int totalResults;
         private List<Item> item;
     }
 
@@ -29,6 +30,7 @@ public class AladinDto {
         private String cover;// 책 표지 이미지 URL
         private String description;
         private String pubDate;
+        private String libCode;    // 도서관 코드
         // description, pubDate 등 필요한 필드가 있다면 여기에 추가
     }
 }

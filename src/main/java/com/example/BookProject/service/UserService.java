@@ -5,6 +5,7 @@ import com.example.BookProject.dto.UserDto;
 import com.example.BookProject.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -22,14 +24,17 @@ public class UserService {
     @Transactional
     public UserDto.UserResponse createUser(UserDto.UserCreateRequest request) {
         // 이메일 중복 확인
-        if(userRepository.findByUserEmail(request.getUserEmail()).isPresent()) {
+        if(userRepository.existsByUserEmail(request.getUserEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+        // 닉네임 중복 확인
+        if(userRepository.existsByUserNm(request.getUserNm())) {
+            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
 
         //비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getUserPw());
-        //User newUser = request.toEntity(); 원래 이 코드에서 로그인 구현하면서 아래처럼 변경
-        User newUser = new User(request.getUserEmail(), encodedPassword, request.getUserNm());
+        User newUser = User.createUser(request.getUserEmail(), encodedPassword, request.getUserNm());
         User savedUser = userRepository.save(newUser);
         return new UserDto.UserResponse(savedUser);
     }
@@ -81,5 +86,16 @@ public class UserService {
             throw new EntityNotFoundException("해당 ID의 사용자를 찾을 수 없습니다: " + userId);
         }
         userRepository.deleteById(userId);
+    }
+
+    // 중복 확인 메소드 추가
+    @Transactional(readOnly = true)
+    public boolean checkEmailExists(String email) {
+        return userRepository.existsByUserEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkUserNmExists(String userName) {
+        return userRepository.existsByUserNm(userName);
     }
 }

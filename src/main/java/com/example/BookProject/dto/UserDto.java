@@ -72,9 +72,15 @@ public class UserDto {
     @NoArgsConstructor
     public static class LoginResponse {
         private String accessToken;
+        private Long userId;
+        private String userNm;
+        private String userEmail;
 
-        public LoginResponse(String accessToken) {
+        public LoginResponse(String accessToken, Long userId, String userNm, String userEmail) {
             this.accessToken = accessToken;
+            this.userId = userId;
+            this.userNm = userNm;
+            this.userEmail = userEmail;
         }
     }
 

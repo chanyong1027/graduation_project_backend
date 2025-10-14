@@ -35,8 +35,8 @@ public class BookDto {
         private String title;
         private String author;
         private String publisher;
-        private String isbn;
-        private String bookImg;
+        private String isbn13;
+        private String cover;
         private String description;
         private String publishedAt;
 
@@ -44,8 +44,8 @@ public class BookDto {
             this.title = item.getTitle();
             this.author = item.getAuthor();
             this.publisher = item.getPublisher();
-            this.isbn = item.getIsbn13();
-            this.bookImg = item.getCover();
+            this.isbn13 = item.getIsbn13();
+            this.cover = item.getCover();
             this.description = item.getDescription();
             this.publishedAt = item.getPubDate();
         }
