@@ -23,8 +23,8 @@ public class ReviewService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ReviewResponseDto createReview(ReviewRequestDto reviewRequestDto, Long userId) {
-        User user = userRepository.findById(userId)
+    public ReviewResponseDto createReview(ReviewRequestDto reviewRequestDto, String username) {
+        User user = userRepository.findByUserName(username)
                 .orElseThrow(()-> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         Book book = bookRepository.findById(reviewRequestDto.getBookId())
                 .orElseThrow(() -> new IllegalArgumentException("책을 찾을 수 없습니다."));
@@ -68,11 +68,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewResponseDto updateReview(Long reviewId, ReviewRequestDto reviewRequestDto, Long userId) {
+    public ReviewResponseDto updateReview(Long reviewId, ReviewRequestDto reviewRequestDto, String username) {
+        User currentUser = userRepository.findByUserName(username)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(()-> new EntityNotFoundException("해당 reviewId의 리뷰를 찾을 수 없습니다." + reviewId));
 
-        if(!review.getUser().getId().equals(userId)){
+        if(!review.getUser().getId().equals(currentUser.getId())){
             throw new IllegalStateException("해당 review를 수정할 권한이 없습니다.");
         }
 
@@ -91,12 +94,15 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(Long reviewId, Long userId) {
+    public void deleteReview(Long reviewId, String username) {
+        User currentUser = userRepository.findByUserName(username)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 reviewId의 리뷰를 찾을 수 없습니다." + reviewId));
 
         // 작성자 본인만 삭제 가능하도록 검증
-        if (!review.getUser().getId().equals(userId)) {
+        if (!review.getUser().getId().equals(currentUser.getId())) {
             throw new IllegalStateException("해당 review를 삭제할 권한이 없습니다.");
         }
 

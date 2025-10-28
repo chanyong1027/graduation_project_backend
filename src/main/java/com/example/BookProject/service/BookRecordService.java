@@ -27,10 +27,16 @@ public class BookRecordService {
     private final BookService bookService; // BookService 주입
     private final BookRecordRepository bookRecordRepository;
 
+    // 헬퍼 메서드: userEmail로 User 객체 찾기 (반복 사용)
+    private User findUserByEmail(String userEmail) {
+        return userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + userEmail));
+    }
+
     // 1. 생성 (Create)
-    public BookRecordResponseDto createBookRecord(BookRecordCreateRequestDto requestDto, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        String isbn = requestDto.getIsbn(); // DTO에서 isbn을 받도록 변경 필요
+    public BookRecordResponseDto createBookRecord(BookRecordCreateRequestDto requestDto, String userEmail) {
+        User user = findUserByEmail(userEmail);
+        String isbn = requestDto.getIsbn();
 
         // DB에 책이 있는지 확인, 없으면 Aladin API를 통해 저장
         Book book = bookRepository.findByIsbn(isbn).orElseGet(() -> {
@@ -38,8 +44,8 @@ public class BookRecordService {
             return bookRepository.findByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book not found after saving"));
         });
 
-        // 이미 등록된 책인지 확인
-        bookRecordRepository.findByUserIdAndBook_Isbn(userId, book.getIsbn()).ifPresent(record -> {
+        /// 이미 등록된 책인지 확인 (user.getId() 사용)
+        bookRecordRepository.findByUserIdAndBook_Isbn(user.getId(), book.getIsbn()).ifPresent(record -> {
             throw new IllegalStateException("이미 서재에 등록된 책입니다.");
         });
 
@@ -55,23 +61,32 @@ public class BookRecordService {
 
     // 2. 조회 (Read)
     @Transactional(readOnly = true)
-    public BookRecordResponseDto findBookRecordById(Long recordId, Long userId) {
+    public BookRecordResponseDto findBookRecordById(Long recordId, String userEmail) {
+        // 1. userEmail로 User 조회
+        User user = findUserByEmail(userEmail);
+
         BookRecord record = bookRecordRepository.findById(recordId)
                 .orElseThrow(() -> new EntityNotFoundException("Book record not found"));
 
-        if (!record.getUser().getId().equals(userId)) {
+        // 2. 권한 확인 (user.getId() 사용)
+        if (!record.getUser().getId().equals(user.getId())) {
             throw new IllegalStateException("해당 독서 기록에 대한 조회 권한이 없습니다.");
         }
         return new BookRecordResponseDto(record);
     }
 
     @Transactional(readOnly = true)
-    public List<BookRecordResponseDto> findMyBookRecords(Long userId, ReadStatus status) {
+    public List<BookRecordResponseDto> findMyBookRecords(String userEmail, ReadStatus status) {
+        // 4. userEmail로 User 조회
+        User user = findUserByEmail(userEmail);
+
         List<BookRecord> records;
         if (status != null) {
-            records = bookRecordRepository.findByUserIdAndReadStatus(userId, status);
+            // 5. user.getId() 사용
+            records = bookRecordRepository.findByUserIdAndReadStatus(user.getId(), status);
         } else {
-            records = bookRecordRepository.findByUserId(userId);
+            // 5. user.getId() 사용
+            records = bookRecordRepository.findByUserId(user.getId());
         }
         return records.stream()
                 .map(BookRecordResponseDto::new)
@@ -79,18 +94,26 @@ public class BookRecordService {
     }
 
     @Transactional(readOnly = true)
-    public BookRecordResponseDto findMyRecordForBook(Long userId, String isbn) {
-        return bookRecordRepository.findByUserIdAndBook_Isbn(userId, isbn)
+    public BookRecordResponseDto findMyRecordForBook(String userEmail, String isbn) {
+        // 7. userEmail로 User 조회
+        User user = findUserByEmail(userEmail);
+
+        // 8. user.getId() 사용
+        return bookRecordRepository.findByUserIdAndBook_Isbn(user.getId(), isbn)
                 .map(BookRecordResponseDto::new)
-                .orElse(null);
+                .orElse(null); // (조회 결과가 없으면 null 반환 - 필요시 예외처리)
     }
 
     // 3. 수정 (Update)
-    public BookRecordResponseDto updateBookRecordStatus(Long recordId, BookRecordUpdateRequestDto requestDto, Long userId) {
+    public BookRecordResponseDto updateBookRecordStatus(Long recordId, BookRecordUpdateRequestDto requestDto, String userEmail) {
+        // 1. userEmail로 User 조회
+        User user = findUserByEmail(userEmail);
+
         BookRecord record = bookRecordRepository.findById(recordId)
                 .orElseThrow(() -> new EntityNotFoundException("Book record not found"));
 
-        if (!record.getUser().getId().equals(userId)) {
+        // 2. 권한 확인 (user.getId() 사용)
+        if (!record.getUser().getId().equals(user.getId())) {
             throw new IllegalStateException("해당 독서 기록에 대한 수정 권한이 없습니다.");
         }
 
@@ -98,11 +121,15 @@ public class BookRecordService {
         return new BookRecordResponseDto(record);
     }
 
-    public BookRecordResponseDto updateReviewAndRating(Long recordId, com.example.BookProject.dto.ReviewUpdateRequestDto requestDto, Long userId) {
+    public BookRecordResponseDto updateReviewAndRating(Long recordId, com.example.BookProject.dto.ReviewUpdateRequestDto requestDto, String userEmail) {
+        // 1. userEmail로 User 조회
+        User user = findUserByEmail(userEmail);
+
         BookRecord record = bookRecordRepository.findById(recordId)
                 .orElseThrow(() -> new EntityNotFoundException("Book record not found"));
 
-        if (!record.getUser().getId().equals(userId)) {
+        // 2. 권한 확인 (user.getId() 사용)
+        if (!record.getUser().getId().equals(user.getId())) {
             throw new IllegalStateException("해당 독서 기록에 대한 수정 권한이 없습니다.");
         }
 
@@ -111,11 +138,15 @@ public class BookRecordService {
     }
 
     // 4. 삭제 (Delete)
-    public void deleteBookRecord(Long recordId, Long userId) {
+    public void deleteBookRecord(Long recordId, String userEmail) {
+        // 1. userEmail로 User 조회
+        User user = findUserByEmail(userEmail);
+
         BookRecord record = bookRecordRepository.findById(recordId)
                 .orElseThrow(() -> new EntityNotFoundException("Book record not found"));
 
-        if (!record.getUser().getId().equals(userId)) {
+        // 2. 권한 확인 (user.getId() 사용)
+        if (!record.getUser().getId().equals(user.getId())) {
             throw new IllegalStateException("해당 독서 기록에 대한 삭제 권한이 없습니다.");
         }
 
