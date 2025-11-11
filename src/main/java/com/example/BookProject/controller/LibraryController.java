@@ -76,8 +76,13 @@ public class LibraryController {
     @GetMapping("/book-status")
     public ResponseEntity<List<LibraryBookStatusDto>> getLibraryBookStatuses(
             @RequestParam("isbn") String isbn,
-            @RequestParam("region") String region) {
-        List<LibraryBookStatusDto> result = libraryService.getLibraryBookStatuses(isbn, region);
+            @RequestParam("region") String region,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        // [2. 사용자 이메일(Username) 추출, 비로그인 시 null]
+        String userEmail = (userDetails != null) ? userDetails.getUsername() : null;
+
+        // [3. 서비스 호출 시 userEmail 전달]
+        List<LibraryBookStatusDto> result = libraryService.getLibraryBookStatuses(isbn, region, userEmail);
         return ResponseEntity.ok(result);
     }
 

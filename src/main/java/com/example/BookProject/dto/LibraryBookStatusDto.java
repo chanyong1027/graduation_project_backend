@@ -15,13 +15,14 @@ public class LibraryBookStatusDto {
     private String homepage;
     private double latitude;
     private double longitude;
+    private boolean isFavorite;
 
     // 책 소장 및 대출 정보
     private boolean hasBook;
     @JsonProperty("isLoanAvailable")
     private boolean loanAvailable;
 
-    public LibraryBookStatusDto(Library library, boolean hasBook, boolean loanAvailable) {
+    public LibraryBookStatusDto(Library library, boolean hasBook, boolean loanAvailable, boolean isFavorite) {
         this.libId = library.getId();
         this.d4lLibCode = library.getD4lLibCode();
         this.libName = library.getLibName();
@@ -32,5 +33,10 @@ public class LibraryBookStatusDto {
         this.longitude = library.getLongitude();
         this.hasBook = hasBook;
         this.loanAvailable = loanAvailable;
+        this.isFavorite = isFavorite;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
     }
 }

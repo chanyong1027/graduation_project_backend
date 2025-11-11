@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -204,8 +201,21 @@ public class LibraryService {
     }
 
     @Transactional(readOnly = true)
-    public List<LibraryBookStatusDto> getLibraryBookStatuses(String isbn, String region) {
+    public List<LibraryBookStatusDto> getLibraryBookStatuses(String isbn, String region, String userEmail) {
         log.info("--- 도서관 책 상태 조회 시작 --- isbn: {}, region: {}", isbn, region);
+
+        final Set<Long> myLibraryIds;
+        if (userEmail != null) {
+            myLibraryIds = userRepository.findByUserEmail(userEmail)
+                    .map(userLibraryRepository::findByUser) // List<UserLibrary>
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .map(userLibrary -> userLibrary.getLibrary().getId()) // Library ID 추출
+                    .collect(Collectors.toSet());
+        } else {
+            myLibraryIds = Collections.emptySet();
+        }
+        log.info("조회된 내 도서관 ID 목록: {}", myLibraryIds);
 
         // 1. 외부 API를 통해 해당 지역에서 책을 소장한 도서관 목록을 가져옵니다.
         String bookHoldingResponse = getBookHoldingLibrariesFromApi(isbn, region, 1, 200); // 최대 200개까지 조회
@@ -229,7 +239,7 @@ public class LibraryService {
                         Long d4lLibCode = null;
                         try {
                             d4lLibCode = libInfo.getLib().getLibCode();
-                            log.info("도서관 처리 중... libCode: {}", d4lLibCode);
+                            //log.info("도서관 처리 중... libCode: {}", d4lLibCode);
 
                             // 3. DB에서 도서관 정보(좌표 포함) 조회
                             Optional<Library> libraryOpt = libraryRepository.findByD4lLibCode(d4lLibCode);
@@ -242,8 +252,9 @@ public class LibraryService {
                             // 4. 외부 API를 통해 대출 가능 여부 실시간 조회
                             LibraryDto.AvailabilityResponse availability = checkBookAvailability(d4lLibCode, isbn);
 
+                            boolean isFavorite = myLibraryIds.contains(library.getId());
                             // 5. 최종 DTO로 조립
-                            return new LibraryBookStatusDto(library, availability.isHasBook(), availability.isLoanAvailable());
+                            return new LibraryBookStatusDto(library, availability.isHasBook(), availability.isLoanAvailable(), isFavorite);
 
                         } catch (Exception e) {
                             log.error("도서관 상태 정보 처리 중 오류 발생. libCode: {}, isbn: {}", d4lLibCode, isbn, e);
@@ -251,6 +262,7 @@ public class LibraryService {
                         }
                     })
                     .filter(Objects::nonNull)
+                    .sorted(Comparator.comparing(LibraryBookStatusDto::isFavorite).reversed())
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
@@ -259,9 +271,6 @@ public class LibraryService {
         }
     }
 
-    /**
-     * 내 도서관으로 추가 (즐겨찾기)
-     */
     /**
      * 내 도서관으로 추가 (즐겨찾기)
      */
@@ -276,6 +285,12 @@ public class LibraryService {
 
         if(userLibraryRepository.existsByUserAndLibrary_Id(user, libraryId)){
             throw new IllegalStateException("이미 추가된 도서관입니다.");
+        }
+
+        List<UserLibrary> currentFavorites = userLibraryRepository.findByUser(user);
+
+        if (currentFavorites.size() > 3) {
+            throw new IllegalStateException("내 도서관은 최대 3개까지만 추가할 수 있습니다.");
         }
 
         UserLibrary userLibrary = UserLibrary.builder()

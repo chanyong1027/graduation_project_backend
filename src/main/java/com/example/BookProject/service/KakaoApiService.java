@@ -17,9 +17,9 @@ import org.springframework.web.client.RestTemplate;
 public class KakaoApiService {
     private final RestTemplate restTemplate;
 
-    //@Value("${external.api.kakao}")
-    //private String kakaoApiKey;
-    private String kakaoApiKey = "9f4c127055954893ddf23824b3c725ac";
+    @Value("${external.api.kakao}")
+    private String kakaoApiKey;
+
 
     private static final String GEOCODE_URL = "https://dapi.kakao.com/v2/local/search/address.json?query=";
 

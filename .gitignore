@@ -37,5 +37,6 @@ out/
 .vscode/
 
 .CheckBook_Project_Plan_BackEnd.md
+.CheckBook_Project_Plan.md
 
 src/main/resources/application-API-KEY.yml
