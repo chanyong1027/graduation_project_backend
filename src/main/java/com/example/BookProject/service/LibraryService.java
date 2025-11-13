@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.*;
@@ -153,11 +154,18 @@ public class LibraryService {
         libraryRepository.findByD4lLibCode(d4lLibCode)
                 .orElseThrow(() -> new IllegalArgumentException("대출 정보 조회 기능이 지원되지 않는 도서관입니다."));
 
-        String url = "http://data4library.kr/api/bookExist?authKey=" + DATA4L_API_KEY
-                + "&libCode=" + d4lLibCode + "&isbn13=" + isbn13 + "&format=json";
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl("http://data4library.kr/api/bookExist")
+                .queryParam("authKey", DATA4L_API_KEY)
+                .queryParam("libCode", d4lLibCode)
+                .queryParam("isbn13", isbn13)
+                .queryParam("format", "json")
+                .build()
+                .encode()
+                .toUri();
 
         try {
-            String jsonResponse = restTemplate.getForObject(url, String.class);
+            String jsonResponse = restTemplate.getForObject(uri, String.class);
             LibraryDto.Data4LibBookExistResponse response = objectMapper.readValue(jsonResponse, LibraryDto.Data4LibBookExistResponse.class);
 
             if (response == null || response.getResponse() == null || response.getResponse().getResult() == null) {
@@ -183,21 +191,45 @@ public class LibraryService {
     }
 
     public String getAllLibrariesFromApi(int pageNo, int pageSize) {
-        String url = "http://data4library.kr/api/libSrch?authKey=" + DATA4L_API_KEY +
-                "&pageNo=" + pageNo + "&pageSize=" + pageSize + "&format=json";
-        return callData4LibraryApi(URI.create(url));
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl("http://data4library.kr/api/libSrch")
+                .queryParam("authKey", DATA4L_API_KEY)
+                .queryParam("pageNo", pageNo)
+                .queryParam("pageSize", pageSize)
+                .queryParam("format", "json")
+                .build(true) // true: 이미 인코딩된 값 유지
+                .toUri();
+        return callData4LibraryApi(uri);
     }
 
     public String getBookHoldingLibrariesFromApi(String isbn, String region, int pageNo, int pageSize) {
-        String url = "http://data4library.kr/api/libSrchByBook?authKey=" + DATA4L_API_KEY +
-                "&isbn=" + isbn + "&region=" + region + "&pageNo=" + pageNo + "&pageSize=" + pageSize + "&format=json";
-        return callData4LibraryApi(URI.create(url));
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl("http://data4library.kr/api/libSrchByBook")
+                .queryParam("authKey", DATA4L_API_KEY)
+                .queryParam("isbn", isbn)
+                .queryParam("region", region)
+                .queryParam("pageNo", pageNo)
+                .queryParam("pageSize", pageSize)
+                .queryParam("format", "json")
+                .build()
+                .encode() // 자동으로 한글 등을 URL 인코딩
+                .toUri();
+        return callData4LibraryApi(uri);
     }
 
     public String searchLibrariesFromApi(String region, String dtl_region, int pageNo, int pageSize) {
-        String url = "http://data4library.kr/api/libSrch?authKey=" + DATA4L_API_KEY +
-                "&region=" + region + "&dtl_region=" + dtl_region + "&pageNo=" + pageNo + "&pageSize=" + pageSize + "&format=json";
-        return callData4LibraryApi(URI.create(url));
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl("http://data4library.kr/api/libSrch")
+                .queryParam("authKey", DATA4L_API_KEY)
+                .queryParam("region", region)
+                .queryParam("dtl_region", dtl_region)
+                .queryParam("pageNo", pageNo)
+                .queryParam("pageSize", pageSize)
+                .queryParam("format", "json")
+                .build()
+                .encode() // 자동으로 한글 등을 URL 인코딩
+                .toUri();
+        return callData4LibraryApi(uri);
     }
 
     @Transactional(readOnly = true)
@@ -275,15 +307,16 @@ public class LibraryService {
      * 내 도서관으로 추가 (즐겨찾기)
      */
     @Transactional
-    public void addFavoriteLibrary(String userEmail, Long libraryId){ // <-- Long userId를 String userEmail로 변경
+    public void addFavoriteLibrary(String userEmail, Long d4lLibCode){ // d4lLibCode로 파라미터명 변경
         // 이메일로 사용자를 찾도록 로직 변경
         User user = userRepository.findByUserEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userEmail: " + userEmail));
 
-        Library library = libraryRepository.findById(libraryId)
-                .orElseThrow(()-> new IllegalArgumentException("도서관을 찾을 수 없습니다. Lib id: " + libraryId));
+        // d4lLibCode로 도서관 찾기 (정보나루 API 코드)
+        Library library = libraryRepository.findByD4lLibCode(d4lLibCode)
+                .orElseThrow(()-> new IllegalArgumentException("도서관을 찾을 수 없습니다. d4lLibCode: " + d4lLibCode));
 
-        if(userLibraryRepository.existsByUserAndLibrary_Id(user, libraryId)){
+        if(userLibraryRepository.existsByUserAndLibrary_Id(user, library.getId())){
             throw new IllegalStateException("이미 추가된 도서관입니다.");
         }
 
@@ -317,13 +350,16 @@ public class LibraryService {
      * 내 도서관 삭제
      */
     @Transactional
-    // Long userId를 String userEmail로 변경
-    public void removeFavoriteLibrary(String userEmail, Long libraryId) {
+    public void removeFavoriteLibrary(String userEmail, Long d4lLibCode) {
         // 이메일로 사용자를 찾도록 로직 변경
         User user = userRepository.findByUserEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userEmail: " + userEmail));
 
-        UserLibrary userLibrary = userLibraryRepository.findByUserAndLibrary_Id(user, libraryId)
+        // d4lLibCode로 도서관 찾기
+        Library library = libraryRepository.findByD4lLibCode(d4lLibCode)
+                .orElseThrow(() -> new IllegalArgumentException("도서관을 찾을 수 없습니다. d4lLibCode: " + d4lLibCode));
+
+        UserLibrary userLibrary = userLibraryRepository.findByUserAndLibrary_Id(user, library.getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 도서관이 내 목록에 없습니다."));
 
         userLibraryRepository.delete(userLibrary);

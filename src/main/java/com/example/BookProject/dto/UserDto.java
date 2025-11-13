@@ -1,5 +1,7 @@
 package com.example.BookProject.dto;
 
+import com.example.BookProject.domain.AgeGroup;
+import com.example.BookProject.domain.Gender;
 import com.example.BookProject.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,14 +21,18 @@ public class UserDto {
         private Long userId;
         private String userNm;
         private String userEmail;
+        private String ageGroup; // Enum을 문자열로 변환하여 전달 (예: "10대", "20대")
+        private String gender;   // Enum을 문자열로 변환하여 전달 (예: "남자", "여자")
         private String userImg;
         private LocalDateTime createdAt;
 
         public UserResponse(User user) {
             this.userId = user.getId();
             this.userNm = user.getUserNm();
-            this.userImg = user.getUserImg();
             this.userEmail = user.getUserEmail();
+            this.ageGroup = user.getAgeGroup() != null ? user.getAgeGroup().getDisplayName() : null;
+            this.gender = user.getGender() != null ? user.getGender().getDisplayName() : null;
+            this.userImg = user.getUserImg();
             this.createdAt = user.getCreatedAt();
         }
     }
@@ -41,6 +47,8 @@ public class UserDto {
         private String userNm;
         private String userEmail;
         private String userPw;
+        private String gender;
+        private String ageGroup;
     }
 
     /**
@@ -72,16 +80,57 @@ public class UserDto {
     @NoArgsConstructor
     public static class LoginResponse {
         private String accessToken;
+        private String refreshToken;
         private Long userId;
         private String userNm;
         private String userEmail;
 
-        public LoginResponse(String accessToken, Long userId, String userNm, String userEmail) {
+        public LoginResponse(String accessToken, String refreshToken, Long userId, String userNm, String userEmail) {
             this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
             this.userId = userId;
             this.userNm = userNm;
             this.userEmail = userEmail;
         }
+    }
+
+    /**
+     * Token Refresh 요청을 위한 DTO
+     */
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class TokenRefreshRequest {
+        private String refreshToken;
+    }
+
+    /**
+     * Token Refresh 응답을 위한 DTO
+     */
+    @Getter
+    @NoArgsConstructor
+    public static class TokenRefreshResponse {
+        private String accessToken;
+        private String refreshToken;
+
+        public TokenRefreshResponse(String accessToken, String refreshToken) {
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
+        }
+    }
+
+    /**
+     * 프로필 수정을 위한 요청 DTO
+     * 프론트엔드에서 "10대", "20대", "남자", "여자" 형태의 문자열로 전송됩니다.
+     */
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ProfileUpdateRequest {
+        private String userNm;
+        private String ageGroup; // "10대", "20대" 등의 문자열
+        private String gender;   // "남자", "여자" 문자열
+        private String userImg;
     }
 
 }

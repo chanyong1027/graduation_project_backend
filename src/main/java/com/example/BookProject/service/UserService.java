@@ -1,5 +1,7 @@
 package com.example.BookProject.service;
 
+import com.example.BookProject.domain.AgeGroup;
+import com.example.BookProject.domain.Gender;
 import com.example.BookProject.domain.User;
 import com.example.BookProject.dto.UserDto;
 import com.example.BookProject.repository.UserRepository;
@@ -34,7 +36,25 @@ public class UserService {
 
         //비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getUserPw());
-        User newUser = User.createUser(request.getUserEmail(), encodedPassword, request.getUserNm());
+        // Gender enum 변환 (optional)
+        Gender gender = null;
+        if (request.getGender() != null && !request.getGender().isEmpty()) {
+            try {
+                gender = Gender.valueOf(request.getGender());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("유효하지 않은 성별입니다: " + request.getGender());
+            }
+        }
+        // AgeGroup enum 변환 (optional)
+        AgeGroup ageGroup = null;
+        if (request.getAgeGroup() != null && !request.getAgeGroup().isEmpty()) {
+            try {
+                ageGroup = AgeGroup.valueOf(request.getAgeGroup());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("유효하지 않은 연령대입니다: " + request.getAgeGroup());
+            }
+        }
+        User newUser = User.createUser(request.getUserEmail(), encodedPassword, request.getUserNm(), gender, ageGroup);
         User savedUser = userRepository.save(newUser);
         return new UserDto.UserResponse(savedUser);
     }
@@ -86,6 +106,42 @@ public class UserService {
             throw new EntityNotFoundException("해당 ID의 사용자를 찾을 수 없습니다: " + userId);
         }
         userRepository.deleteById(userId);
+    }
+
+    // 프로필 수정 (닉네임, 연령대, 성별, 이미지)
+    @Transactional
+    public UserDto.UserResponse updateProfile(String userEmail, UserDto.ProfileUpdateRequest request) {
+        User user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userEmail));
+
+        // 닉네임 중복 확인 (다른 사용자가 이미 사용 중인지)
+        if (request.getUserNm() != null && !request.getUserNm().equals(user.getUserNm())) {
+            if (userRepository.existsByUserNm(request.getUserNm())) {
+                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            }
+        }
+
+        // 문자열을 Enum으로 변환
+        AgeGroup ageGroup = null;
+        if (request.getAgeGroup() != null) {
+            try {
+                ageGroup = AgeGroup.fromDisplayName(request.getAgeGroup());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("유효하지 않은 연령대입니다: " + request.getAgeGroup());
+            }
+        }
+
+        Gender gender = null;
+        if (request.getGender() != null) {
+            try {
+                gender = Gender.fromDisplayName(request.getGender());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("유효하지 않은 성별입니다: " + request.getGender());
+            }
+        }
+
+        user.updateProfile(request.getUserNm(), ageGroup, gender, request.getUserImg());
+        return new UserDto.UserResponse(user);
     }
 
     // 중복 확인 메소드 추가

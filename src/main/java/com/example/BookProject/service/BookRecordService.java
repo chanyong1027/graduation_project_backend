@@ -121,7 +121,7 @@ public class BookRecordService {
         return new BookRecordResponseDto(record);
     }
 
-    public BookRecordResponseDto updateReviewAndRating(Long recordId, com.example.BookProject.dto.ReviewUpdateRequestDto requestDto, String userEmail) {
+    public BookRecordResponseDto updateReviewAndRating(Long recordId, com.example.BookProject.dto.BookRecordReviewUpdateRequestDto requestDto, String userEmail) {
         // 1. userEmail로 User 조회
         User user = findUserByEmail(userEmail);
 

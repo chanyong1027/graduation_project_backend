@@ -74,7 +74,7 @@ public class BookRecordController {
     @PutMapping("/{recordId}/review")
     public ResponseEntity<BookRecordResponseDto> updateReviewAndRating(
             @PathVariable("recordId") Long recordId,
-            @RequestBody com.example.BookProject.dto.ReviewUpdateRequestDto requestDto,
+            @RequestBody com.example.BookProject.dto.BookRecordReviewUpdateRequestDto requestDto,
             @AuthenticationPrincipal UserDetails userDetails) {
         String userEmail = userDetails.getUsername();
         BookRecordResponseDto updatedRecord = bookRecordService.updateReviewAndRating(recordId, requestDto, userEmail);

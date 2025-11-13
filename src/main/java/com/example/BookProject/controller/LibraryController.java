@@ -91,8 +91,8 @@ public class LibraryController {
     // 지금은 userId를 파라미터로 받는다고 가정하겠습니다.
 
     @PostMapping("/{libraryId}/my-library")
-    public ResponseEntity<Void> addMyLibrary(@PathVariable Long libraryId, @AuthenticationPrincipal UserDetails userDetails) {
-        libraryService.addFavoriteLibrary(userDetails.getUsername(), libraryId);
+    public ResponseEntity<Void> addMyLibrary(@PathVariable("libraryId") Long d4lLibCode, @AuthenticationPrincipal UserDetails userDetails) {
+        libraryService.addFavoriteLibrary(userDetails.getUsername(), d4lLibCode);
         return ResponseEntity.ok().build();
     }
 
@@ -103,8 +103,8 @@ public class LibraryController {
     }
 
     @DeleteMapping("/{libraryId}/my-library")
-    public ResponseEntity<Void> removeMyLibrary(@PathVariable Long libraryId, @AuthenticationPrincipal UserDetails userDetails) {
-        libraryService.removeFavoriteLibrary(userDetails.getUsername(), libraryId);
+    public ResponseEntity<Void> removeMyLibrary(@PathVariable("libraryId") Long d4lLibCode, @AuthenticationPrincipal UserDetails userDetails) {
+        libraryService.removeFavoriteLibrary(userDetails.getUsername(), d4lLibCode);
         return ResponseEntity.ok().build();
     }
 }

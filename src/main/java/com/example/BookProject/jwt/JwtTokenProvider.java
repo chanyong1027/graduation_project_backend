@@ -25,13 +25,16 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final long accessTokenValidityInMilliseconds;
+    private final long refreshTokenValidityInMilliseconds;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
+            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
+            @Value("${jwt.refresh-token-validity-in-seconds:604800}") long refreshTokenValidityInSeconds) { // 기본값 7일
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.refreshTokenValidityInMilliseconds = refreshTokenValidityInSeconds * 1000;
     }
 
     // JWT 토큰 생성
@@ -68,6 +71,36 @@ public class JwtTokenProvider {
         UserDetails principal = new User(claims.getSubject(), "", authorities); // 비밀번호는 중요하지 않음
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+    }
+
+    // Refresh Token 생성
+    public String createRefreshToken(String userEmail) {
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);
+
+        return Jwts.builder()
+                .setSubject(userEmail)
+                .setIssuedAt(new Date(now))
+                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    // Refresh Token에서 사용자 이메일 추출
+    public String getUserEmailFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
+
+    // Refresh Token 만료 시간 반환 (LocalDateTime)
+    public java.time.LocalDateTime getRefreshTokenExpiryDate() {
+        long now = System.currentTimeMillis();
+        return java.time.LocalDateTime.now()
+                .plusSeconds(this.refreshTokenValidityInMilliseconds / 1000);
     }
 
     // 토큰 유효성 검증

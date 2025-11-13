@@ -34,11 +34,13 @@ public class User implements UserDetails {
     @Column(name = "user_email", nullable = false, unique = true)
     private String userEmail;
 
-    @Column(name = "user_age")
-    private Integer userAge;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "age_group")
+    private AgeGroup ageGroup;
 
-    @Column(name = "user_gender")
-    private String userGender;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    private Gender gender;
 
     @Column(name = "user_img")
     private String userImg;
@@ -52,11 +54,14 @@ public class User implements UserDetails {
     private LocalDateTime updatedAt;
 
     // 생성 메소드
-    public static User createUser(String userEmail, String userPw, String userNm) {
+    public static User createUser(String userEmail, String userPw, String userNm,
+                                  Gender gender, AgeGroup ageGroup) {
         User user = new User();
         user.userEmail = userEmail;
         user.userPw = userPw;
         user.userNm = userNm;
+        user.gender = gender;
+        user.ageGroup = ageGroup;
         return user;
     }
 
@@ -66,6 +71,21 @@ public class User implements UserDetails {
 
     public void updateName(String newNm) {
         this.userNm = newNm;
+    }
+
+    public void updateProfile(String userNm, AgeGroup ageGroup, Gender gender, String userImg) {
+        if (userNm != null) {
+            this.userNm = userNm;
+        }
+        if (ageGroup != null) {
+            this.ageGroup = ageGroup;
+        }
+        if (gender != null) {
+            this.gender = gender;
+        }
+        if (userImg != null) {
+            this.userImg = userImg;
+        }
     }
 
     @Override

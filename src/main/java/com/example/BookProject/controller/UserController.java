@@ -1,14 +1,18 @@
 package com.example.BookProject.controller;
 
+import com.example.BookProject.domain.RefreshToken;
 import com.example.BookProject.dto.UserDto;
 import com.example.BookProject.jwt.JwtTokenProvider;
+import com.example.BookProject.service.TokenService;
 import com.example.BookProject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -23,6 +27,7 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenService tokenService;
 
     // C: 회원가입
     @PostMapping("/register")
@@ -46,12 +51,16 @@ public class UserController {
         String userEmail = authentication.getName();
         UserDto.UserResponse userResponse = userService.findUserByEmail(userEmail);
 
-        // JWT 토큰 생성
-        String jwtToken = jwtTokenProvider.createToken(authentication);
+        // Access Token 생성
+        String accessToken = jwtTokenProvider.createToken(authentication);
+
+        // Refresh Token 생성 및 저장
+        String refreshToken = tokenService.createAndSaveRefreshToken(userEmail);
 
         // 풍부한 정보를 담은 응답 생성
         UserDto.LoginResponse loginResponse = new UserDto.LoginResponse(
-                jwtToken,
+                accessToken,
+                refreshToken,
                 userResponse.getUserId(),
                 userResponse.getUserNm(),
                 userResponse.getUserEmail()
@@ -99,5 +108,67 @@ public class UserController {
     public ResponseEntity<Map<String, Boolean>> checkUserName(@RequestParam("username") String username) {
         boolean exists = userService.checkUserNmExists(username);
         return ResponseEntity.ok(Collections.singletonMap("exists", exists));
+    }
+
+    // 로그아웃 (Refresh Token 무효화)
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(@AuthenticationPrincipal UserDetails userDetails) {
+        String userEmail = userDetails.getUsername();
+
+        // DB에서 Refresh Token 삭제
+        tokenService.deleteRefreshTokenByUserEmail(userEmail);
+
+        // SecurityContext 정리
+        SecurityContextHolder.clearContext();
+
+        return ResponseEntity.ok(Collections.singletonMap("message", "로그아웃되었습니다."));
+    }
+
+    // Token Refresh API
+    @PostMapping("/refresh")
+    public ResponseEntity<UserDto.TokenRefreshResponse> refreshToken(
+            @RequestBody UserDto.TokenRefreshRequest request) {
+
+        // Refresh Token 검증
+        RefreshToken refreshToken = tokenService.validateRefreshToken(request.getRefreshToken())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 Refresh Token입니다."));
+
+        // 사용자 정보 조회
+        String userEmail = refreshToken.getUserEmail();
+        UserDto.UserResponse userResponse = userService.findUserByEmail(userEmail);
+
+        // 새로운 Access Token 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userEmail, null, Collections.singletonList(() -> "ROLE_USER")
+        );
+        String newAccessToken = jwtTokenProvider.createToken(authentication);
+
+        // 새로운 Refresh Token 생성 (선택적 - Refresh Token Rotation)
+        String newRefreshToken = tokenService.createAndSaveRefreshToken(userEmail);
+
+        UserDto.TokenRefreshResponse response = new UserDto.TokenRefreshResponse(
+                newAccessToken,
+                newRefreshToken
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 프로필 수정 (닉네임, 나이, 성별, 이미지)
+    @PatchMapping("/profile")
+    public ResponseEntity<UserDto.UserResponse> updateProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody UserDto.ProfileUpdateRequest request) {
+        String userEmail = userDetails.getUsername();
+        UserDto.UserResponse response = userService.updateProfile(userEmail, request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 내 정보 조회 (현재 로그인된 사용자)
+    @GetMapping("/me")
+    public ResponseEntity<UserDto.UserResponse> getMyInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        String userEmail = userDetails.getUsername();
+        UserDto.UserResponse response = userService.findUserByEmail(userEmail);
+        return ResponseEntity.ok(response);
     }
 }

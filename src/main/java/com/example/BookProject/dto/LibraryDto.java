@@ -12,7 +12,7 @@ public class LibraryDto {
     @Getter
     @NoArgsConstructor
     public static class Response {
-        private Long id;
+        private Long id; // 프론트엔드 호환성을 위해 d4lLibCode를 id로 반환
         private Long d4lLibCode;
         private String libName;
         private String address;
@@ -22,7 +22,7 @@ public class LibraryDto {
         private Double longitude;
 
         public Response(Library library) {
-            this.id = library.getId();
+            this.id = library.getD4lLibCode(); // 프론트엔드가 d4lLibCode를 id로 사용하므로
             this.d4lLibCode = library.getD4lLibCode();
             this.libName = library.getLibName();
             this.address = library.getAddress();

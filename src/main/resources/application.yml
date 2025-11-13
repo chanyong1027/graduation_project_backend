@@ -18,7 +18,8 @@ spring:
 # JWT 설정
 jwt:
   secret: ${JWT_SECRET} # 👈 환경 변수로 변경
-  token-validity-in-seconds: 3600
+  token-validity-in-seconds: 3600  # Access Token: 1시간
+  refresh-token-validity-in-seconds: 604800  # Refresh Token: 7일
 
 logging:
   level:
