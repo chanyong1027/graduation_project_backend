@@ -17,18 +17,18 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BatchTestRunner implements CommandLineRunner {
 
-    //private final LibraryBatchService libraryBatchService;
-    private final ExcelDataProcessor excelDataProcessor;
+    private final LibraryBatchService libraryBatchService;
+    //private final ExcelDataProcessor excelDataProcessor;
 
-    @Override
+   /* @Override
     public void run(String ...args) throws Exception {
         log.info("BatchTestRunner를 사용하여 엑셀 파일 Dry Run을 시작합니다.");
         String xlsxFilePath = "C:/Users/my home/Downloads/국가자료종합목록.xlsx";
         excelDataProcessor.runRealRun(xlsxFilePath);
 
         log.info("Xlsx 파일 Dry Run을 완료했습니다.");
-    }
-    /*@Override
+    }*/
+    @Override
     public void run(String... args) throws Exception {
         log.info("BatchTestRunner를 사용하여 '정보나루' 전체 도서관 데이터 저장 작업을 시작합니다.");
 
@@ -36,5 +36,5 @@ public class BatchTestRunner implements CommandLineRunner {
         libraryBatchService.fetchAndSaveAllLibrariesFromData4Lib();
 
         log.info("'정보나루' 전체 도서관 데이터 저장 작업을 완료했습니다.");
-    }*/
+    }
 }

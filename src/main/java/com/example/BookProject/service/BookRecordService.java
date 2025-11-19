@@ -117,7 +117,8 @@ public class BookRecordService {
             throw new IllegalStateException("해당 독서 기록에 대한 수정 권한이 없습니다.");
         }
 
-        record.updateStatus(requestDto.getReadStatus());
+        // 3. 상태 및 날짜 업데이트 (날짜는 선택적)
+        record.updateStatus(requestDto.getReadStatus(), requestDto.getStartDate(), requestDto.getEndDate());
         return new BookRecordResponseDto(record);
     }
 

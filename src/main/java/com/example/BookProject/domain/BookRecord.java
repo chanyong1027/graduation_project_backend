@@ -65,17 +65,32 @@ public class BookRecord {
     }
 
     //== 비즈니스 로직 편의 메서드 ==//
-    public void updateStatus(ReadStatus newStatus) {
+    public void updateStatus(ReadStatus newStatus, LocalDate customStartDate, LocalDate customEndDate) {
         this.readStatus = newStatus;
+
         if (newStatus == ReadStatus.Reading) {
-            this.startDate = LocalDate.now();
+            // startDate: 제공된 날짜 사용, 없으면 오늘 날짜
+            this.startDate = (customStartDate != null) ? customStartDate : LocalDate.now();
             this.endDate = null;
         } else if (newStatus == ReadStatus.Completed) {
-            if (this.startDate == null) { // 읽기 시작도 안하고 완독하는 경우
+            // startDate: 제공된 날짜 사용, 없으면 기존 값 유지 또는 오늘 날짜
+            if (customStartDate != null) {
+                this.startDate = customStartDate;
+            } else if (this.startDate == null) {
                 this.startDate = LocalDate.now();
             }
-            this.endDate = LocalDate.now();
+            // endDate: 제공된 날짜 사용, 없으면 오늘 날짜
+            this.endDate = (customEndDate != null) ? customEndDate : LocalDate.now();
+        } else if (newStatus == ReadStatus.Wish) {
+            // Wish로 변경 시 날짜 초기화 (선택적 날짜 무시)
+            this.startDate = null;
+            this.endDate = null;
         }
+    }
+
+    // 하위 호환성을 위한 오버로드 메서드 (날짜 없이 호출 시 자동 날짜 설정)
+    public void updateStatus(ReadStatus newStatus) {
+        updateStatus(newStatus, null, null);
     }
 
     public void updateReviewAndRating(String review, Integer rating) {

@@ -214,15 +214,18 @@ public class BookService {
         // 이하 로직은 searchAndSaveBooks와 동일 (DB에 없으면 저장)
         if (response != null && response.getItem() != null && !response.getItem().isEmpty()) {
             for (AladinDto.Item item : response.getItem()) {
-                if (bookRepository.findByIsbn(item.getIsbn13()).isEmpty()) {
-                    Book newBook = Book.builder()
-                            .title(item.getTitle())
-                            .author(item.getAuthor())
-                            .publisher(item.getPublisher())
-                            .isbn(item.getIsbn13())
-                            .bookImg(item.getCover())
-                            .build();
-                    bookRepository.save(newBook);
+                // ISBN이 13자리인 경우만 처리
+                if (item.getIsbn13() != null && item.getIsbn13().length() == 13) {
+                    if (bookRepository.findByIsbn(item.getIsbn13()).isEmpty()) {
+                        Book newBook = Book.builder()
+                                .title(item.getTitle())
+                                .author(item.getAuthor())
+                                .publisher(item.getPublisher())
+                                .isbn(item.getIsbn13())
+                                .bookImg(item.getCover())
+                                .build();
+                        bookRepository.save(newBook);
+                    }
                 }
             }
         }
@@ -247,6 +250,7 @@ public class BookService {
 
         if (response != null && response.getItem() != null) {
             return response.getItem().stream()
+                    .filter(item -> item.getIsbn13() != null && item.getIsbn13().length() == 13)
                     .map(BookDto.BookSearchResponse::new)
                     .collect(Collectors.toList());
         }
@@ -277,6 +281,7 @@ public class BookService {
 
             if (response != null && response.getItem() != null) {
                 return response.getItem().stream()
+                        .filter(item -> item.getIsbn13() != null && item.getIsbn13().length() == 13)
                         .map(BookDto.BookSearchResponse::new)
                         .collect(Collectors.toList());
             }

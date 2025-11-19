@@ -57,6 +57,7 @@ public class SecurityConfig {
                                 "/api/users/refresh", // Token Refresh 추가
                                 "/api/users/check-email",
                                 "/api/users/check-username",
+                                "/api/email/**", // 이메일 인증
                                 "/api/libraries/search-from-api",
                                 "/api/libraries/book-status",
                                 "/api/books/**",
