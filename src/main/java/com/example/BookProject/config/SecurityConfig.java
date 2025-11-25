@@ -86,7 +86,10 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",  // Vite 개발 서버
                 "http://localhost:3000",  // React 개발 서버 (예비)
-                "http://localhost:4173"   // Vite 프리뷰 서버
+                "http://localhost:4173",// Vite 프리뷰 서버
+                "https://check-book-chanyongs-projects.vercel.app",
+                "https://check-book-git-main-chanyongs-projects.vercel.app",
+                "https://check-book-9fgwig2gs-chanyongs-projects.vercel.app"
         ));
 
         // 허용할 HTTP 메서드
