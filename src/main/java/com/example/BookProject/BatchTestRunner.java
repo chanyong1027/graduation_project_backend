@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * 최초 1회 실행하여 DB에 데이터를 모두 저장한 후에는 이 파일을 삭제하거나 @Component를 주석 처리하는 것을 권장합니다.
  */
 @Slf4j
-//@Component // Spring이 이 클래스를 찾아서 실행할 수 있도록 등록합니다.
+@Component // Spring이 이 클래스를 찾아서 실행할 수 있도록 등록합니다.
 @RequiredArgsConstructor
 public class BatchTestRunner implements CommandLineRunner {
 
@@ -33,7 +33,9 @@ public class BatchTestRunner implements CommandLineRunner {
         log.info("BatchTestRunner를 사용하여 '정보나루' 전체 도서관 데이터 저장 작업을 시작합니다.");
 
         // '정보나루' API를 호출하여 전체 도서관 정보를 DB에 저장하는 단일 메서드를 호출합니다.
-        libraryBatchService.fetchAndSaveAllLibrariesFromData4Lib();
+        if(System.getenv("RUN_DATA_INIT") != null) {
+            libraryBatchService.fetchAndSaveAllLibrariesFromData4Lib();
+        }
 
         log.info("'정보나루' 전체 도서관 데이터 저장 작업을 완료했습니다.");
     }
