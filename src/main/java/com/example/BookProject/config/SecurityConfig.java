@@ -89,7 +89,8 @@ public class SecurityConfig {
                 "http://localhost:4173",// Vite 프리뷰 서버
                 "https://check-book-chanyongs-projects.vercel.app",
                 "https://check-book-git-main-chanyongs-projects.vercel.app",
-                "https://check-book-9fgwig2gs-chanyongs-projects.vercel.app"
+                "https://check-book-9fgwig2gs-chanyongs-projects.vercel.app",
+                "https://check-book-six.vercel.app"
         ));
 
         // 허용할 HTTP 메서드
